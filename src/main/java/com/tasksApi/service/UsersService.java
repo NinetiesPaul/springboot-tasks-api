@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 
 import com.tasksApi.model.Users;
 import com.tasksApi.repositories.UsersRepository;
-import com.tasksApi.requests.JwtRequest;
+import com.tasksApi.requests.UsersRequest;
 
 @Service
-public class JwtUserDetailsService implements UserDetailsService {
+public class UsersService implements UserDetailsService {
 	
 	@Autowired
 	private UsersRepository usersRepository;
@@ -32,7 +32,7 @@ public class JwtUserDetailsService implements UserDetailsService {
 				new ArrayList<>());
 	}
     
-	public Users save(JwtRequest user) {
+	public Users save(UsersRequest user) {
 		Users newUser = new Users();
 		newUser.setUsername(user.getUsername());
 		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
