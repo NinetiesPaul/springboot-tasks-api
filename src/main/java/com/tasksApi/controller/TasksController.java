@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.service.TasksService;
 
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/task")

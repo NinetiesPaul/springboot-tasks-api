@@ -2,8 +2,8 @@ package com.tasksApi.repositories;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.tasksApi.model.Tasks;
+import com.tasksApi.model.Users;
 
-public interface UsersRepository extends CrudRepository<Tasks, Integer> {
+public interface UsersRepository extends CrudRepository<Users, Integer> {
     
 }
