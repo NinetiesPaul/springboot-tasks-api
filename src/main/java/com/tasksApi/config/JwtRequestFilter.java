@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter  {
     @Autowired
-	private JwtUserDetailsService jwtUserDetailsService;
+	private JwtUserDetailsService usersService;
 
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
@@ -40,9 +40,9 @@ public class JwtRequestFilter extends OncePerRequestFilter  {
 			try {
 				username = jwtTokenUtil.getUsernameFromToken(jwtToken);
 			} catch (IllegalArgumentException e) {
-				System.out.println("Unable to get JWT Token");
+				logger.warn("Unable to get JWT Token");
 			} catch (ExpiredJwtException e) {
-				System.out.println("JWT Token has expired");
+				logger.warn("JWT Token has expired");
 			}
 		} else {
 			logger.warn("JWT Token does not begin with Bearer String");
@@ -51,7 +51,7 @@ public class JwtRequestFilter extends OncePerRequestFilter  {
 		//Once we get the token validate it.
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-			UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
+			UserDetails userDetails = this.usersService.loadUserByUsername(username);
 
 			// if token is valid configure Spring Security to manually set authentication
 			if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
