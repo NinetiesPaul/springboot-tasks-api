@@ -9,6 +9,7 @@ public class UsersRequest implements Serializable {
 
 	@NotBlank(message = "Username is mandatory")
 	private String username;
+
 	@NotBlank(message = "Password is mandatory")
 	private String password;
 

@@ -21,7 +21,7 @@ public class Tasks {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
 
-    //@NotBlank(message = "Title is mandatory")
+    @NotBlank(message = "Title is mandatory")
     @Column(unique = false, length = 200, nullable = false)
 	private String title;
 

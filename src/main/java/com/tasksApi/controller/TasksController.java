@@ -63,7 +63,7 @@ public class TasksController {
 	}
 	
 	@PutMapping(path = "/update/{id}")
-	public ResponseEntity<Tasks> update(@Valid @RequestBody Tasks task, @PathVariable("id") Integer id) {
+	public ResponseEntity<Tasks> update(@RequestBody Tasks task, @PathVariable("id") Integer id) {
 		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
 
 		if (!optionalTask.isPresent()) {
