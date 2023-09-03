@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -19,9 +20,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tasksApi.config.JwtTokenUtil;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.service.TasksService;
+import com.tasksApi.service.UsersService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -29,6 +33,12 @@ import javax.validation.Valid;
 public class TasksController {
 	
 	private TasksService tasksService;
+	
+	@Autowired
+	private UsersService usersService;
+
+	@Autowired
+	private JwtTokenUtil jwtTokenUtil;
 
 	public TasksController(TasksService tasksService) {
         this.tasksService = tasksService;
@@ -52,13 +62,17 @@ public class TasksController {
 	}
 	
 	@PostMapping(path = "/create")
-	public ResponseEntity<Tasks> create(@Valid @RequestBody Tasks task) throws Exception {
+	public ResponseEntity<Tasks> create(@Valid @RequestBody Tasks task, HttpServletRequest request) throws Exception {
 
 		if (task.getTitle() == null) {
 			throw new Exception("Field {title} is mandatory");
 		}
 
-		Tasks taskCreated = tasksService.create(task);
+		String jwtToken = request.getHeader("Authorization").substring(7);
+		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
+		Integer userId = usersService.findByName(username);
+
+		Tasks taskCreated = tasksService.create(task, userId);
 		return new ResponseEntity<>(taskCreated, HttpStatus.OK);
 	}
 	

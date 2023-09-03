@@ -16,11 +16,12 @@ public class TasksService {
     @Autowired
     private TaskRepository taskRepository;
 
-    public Tasks create(Tasks task) {
+    public Tasks create(Tasks task, Integer createdBy) {
         task.setStatus(TaskStatusEnum.open);
 
         TaskTypeEnum type = (task.getType() != null) ? task.getType() : TaskTypeEnum.feature;
         task.setType(type);
+        task.setCreatedBy(createdBy);
 
         taskRepository.save(task);
         return task;

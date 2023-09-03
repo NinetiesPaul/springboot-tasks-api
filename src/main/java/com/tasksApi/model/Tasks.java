@@ -36,6 +36,9 @@ public class Tasks {
     @Enumerated(EnumType.STRING)
 	private TaskStatusEnum status;
 
+    @Column(name = "created_by")
+    private Integer createdBy;
+
     @CreationTimestamp
     @Column(name = "created_on")
 	private Date createdOn;
@@ -105,5 +108,15 @@ public class Tasks {
     public void setClosedOn(Date closedOn)
     {
         this.closedOn = closedOn;
+    }
+
+    public Integer getCreatedBy()
+    {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Integer createdBy)
+    {
+        this.createdBy = createdBy;
     }
 }

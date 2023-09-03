@@ -31,6 +31,12 @@ public class UsersService implements UserDetailsService {
 		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
 				new ArrayList<>());
 	}
+
+	public Integer findByName(String username)
+	{
+		Users user = usersRepository.findByUsername(username);
+		return user.getId();
+	}
     
 	public Users save(UsersRequest user) {
 		Users newUser = new Users();
