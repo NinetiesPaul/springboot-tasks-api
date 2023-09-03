@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tasksApi.config.JwtTokenUtil;
 import com.tasksApi.model.Tasks;
+import com.tasksApi.model.Users;
 import com.tasksApi.service.TasksService;
 import com.tasksApi.service.UsersService;
 
@@ -70,9 +71,9 @@ public class TasksController {
 
 		String jwtToken = request.getHeader("Authorization").substring(7);
 		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
-		Integer userId = usersService.findByName(username);
+		Users user = usersService.findByName(username);
 
-		Tasks taskCreated = tasksService.create(task, userId);
+		Tasks taskCreated = tasksService.create(task, user);
 		return new ResponseEntity<>(taskCreated, HttpStatus.OK);
 	}
 	

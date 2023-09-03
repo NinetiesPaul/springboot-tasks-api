@@ -8,9 +8,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
@@ -36,8 +39,9 @@ public class Tasks {
     @Enumerated(EnumType.STRING)
 	private TaskStatusEnum status;
 
-    @Column(name = "created_by")
-    private Integer createdBy;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "created_by", referencedColumnName = "id")
+    private Users createdBy;
 
     @CreationTimestamp
     @Column(name = "created_on")
@@ -110,12 +114,12 @@ public class Tasks {
         this.closedOn = closedOn;
     }
 
-    public Integer getCreatedBy()
+    public Users getCreatedBy()
     {
         return createdBy;
     }
 
-    public void setCreatedBy(Integer createdBy)
+    public void setCreatedBy(Users createdBy)
     {
         this.createdBy = createdBy;
     }

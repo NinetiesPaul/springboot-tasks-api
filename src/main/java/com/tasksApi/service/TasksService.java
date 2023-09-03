@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.tasksApi.model.TaskStatusEnum;
 import com.tasksApi.model.TaskTypeEnum;
 import com.tasksApi.model.Tasks;
+import com.tasksApi.model.Users;
 import com.tasksApi.repositories.TaskRepository;
 
 @Service
@@ -16,7 +17,7 @@ public class TasksService {
     @Autowired
     private TaskRepository taskRepository;
 
-    public Tasks create(Tasks task, Integer createdBy) {
+    public Tasks create(Tasks task, Users createdBy) {
         task.setStatus(TaskStatusEnum.open);
 
         TaskTypeEnum type = (task.getType() != null) ? task.getType() : TaskTypeEnum.feature;

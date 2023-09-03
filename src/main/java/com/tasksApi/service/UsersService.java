@@ -32,10 +32,10 @@ public class UsersService implements UserDetailsService {
 				new ArrayList<>());
 	}
 
-	public Integer findByName(String username)
+	public Users findByName(String username)
 	{
 		Users user = usersRepository.findByUsername(username);
-		return user.getId();
+		return user;
 	}
     
 	public Users save(UsersRequest user) {
