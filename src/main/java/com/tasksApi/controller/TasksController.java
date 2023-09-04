@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tasksApi.config.JwtTokenUtil;
+import com.tasksApi.model.TaskStatusEnum;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
 import com.tasksApi.service.TasksService;
@@ -41,18 +42,21 @@ public class TasksController {
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
 
-	public TasksController(TasksService tasksService) {
+	public TasksController(TasksService tasksService)
+	{
         this.tasksService = tasksService;
     }
 	
 	@GetMapping(path = "/list")
-	public ResponseEntity<Iterable<Tasks>> findAll() {
+	public ResponseEntity<Iterable<Tasks>> findAll()
+	{
 		Iterable<Tasks> allTasks = tasksService.findAllTasks();
 		return new ResponseEntity<>(allTasks, HttpStatus.OK);
 	}
 	
 	@GetMapping(path = "/view/{id}")
-	public ResponseEntity<Tasks> findOne(@PathVariable("id") Integer id) {
+	public ResponseEntity<Tasks> findOne(@PathVariable("id") Integer id)
+	{
 		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
 
 		if (optionalTask.isPresent()) {
@@ -63,12 +67,8 @@ public class TasksController {
 	}
 	
 	@PostMapping(path = "/create")
-	public ResponseEntity<Tasks> create(@Valid @RequestBody Tasks task, HttpServletRequest request) throws Exception {
-
-		if (task.getTitle() == null) {
-			throw new Exception("Field {title} is mandatory");
-		}
-
+	public ResponseEntity<Tasks> create(@Valid @RequestBody Tasks task, HttpServletRequest request) throws Exception
+	{
 		String jwtToken = request.getHeader("Authorization").substring(7);
 		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
 		Users user = usersService.findByName(username);
@@ -78,19 +78,42 @@ public class TasksController {
 	}
 	
 	@PutMapping(path = "/update/{id}")
-	public ResponseEntity<Tasks> update(@RequestBody Tasks task, @PathVariable("id") Integer id) {
+	public ResponseEntity<Tasks> update(@RequestBody Tasks task, @PathVariable("id") Integer id) throws Exception
+	{
 		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
 
 		if (!optionalTask.isPresent()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		Tasks taskCreated = tasksService.update(optionalTask.get(), task);
-		return new ResponseEntity<>(taskCreated, HttpStatus.OK);
+		if (task.getStatus() == TaskStatusEnum.closed) {
+			throw new Exception("Cannot close Task on /update");
+		}
+
+		if (optionalTask.get().getStatus() == TaskStatusEnum.closed) {
+			throw new Exception("Cannot update a closed a task");
+		}
+
+		Tasks taskUpdated = tasksService.update(optionalTask.get(), task);
+		return new ResponseEntity<>(taskUpdated, HttpStatus.OK);
 	}
-	
+
+	@PutMapping(path = "/close/{id}")
+	public ResponseEntity<Tasks> close(@PathVariable("id") Integer id)
+	{
+		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
+
+		if (!optionalTask.isPresent()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		Tasks taskClosed = tasksService.close(optionalTask.get());
+		return new ResponseEntity<>(taskClosed, HttpStatus.OK);
+	}
+
 	@DeleteMapping(path = "/delete/{id}")
-	public ResponseEntity<Boolean> remove(@PathVariable("id") Integer id) {
+	public ResponseEntity<Boolean> remove(@PathVariable("id") Integer id)
+	{
 		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
 
 		if (!optionalTask.isPresent()) {
@@ -101,10 +124,10 @@ public class TasksController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(Exception.class)
-    public Map<String, String> handleException(Exception error) {
+    public Map<String, String> handleException(Exception error)
+	{
 		Map<String, String> errors = new HashMap<>();
 		errors.put("error", error.getMessage());
         return errors;
@@ -112,7 +135,8 @@ public class TasksController {
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex)
+	{
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
