@@ -1,5 +1,6 @@
 package com.tasksApi.service;
 
+import java.util.Date;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,16 @@ public class TasksService {
 
         TaskStatusEnum status = (taskRequest.getStatus() != null) ? taskRequest.getStatus() : task.getStatus();
         task.setStatus(status);
+        
+        taskRepository.save(task);
+        return task;
+	}
+
+    public Tasks close(Tasks task) {
+        task.setStatus(TaskStatusEnum.closed);
+
+        Date date = new Date(System.currentTimeMillis());
+        task.setClosedOn(date);
         
         taskRepository.save(task);
         return task;
