@@ -16,7 +16,7 @@ public class Users {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
 
-    @Column(unique = false, length = 40, nullable = false)
+    @Column(unique = true, length = 40, nullable = false)
 	private String username;
 
     @JsonIgnore

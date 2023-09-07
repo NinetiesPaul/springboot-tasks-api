@@ -1,5 +1,6 @@
 package com.tasksApi.controller;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +56,7 @@ public class UsersController {
 	}
 
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public ResponseEntity<?> saveUser(@Valid @RequestBody UsersRequest user) throws Exception {
+	public ResponseEntity<?> saveUser(@Valid @RequestBody UsersRequest user) throws Exception, SQLIntegrityConstraintViolationException {
 		return ResponseEntity.ok(usersService.save(user));
 	}
 
@@ -68,6 +69,14 @@ public class UsersController {
 			throw new Exception("INVALID_CREDENTIALS", e);
 		}
 	}
+
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+    public Map<String, String> handleValidationExceptions(SQLIntegrityConstraintViolationException ex) {
+		Map<String, String> errors = new HashMap<>();
+		errors.put("error", ex.getMessage());
+        return errors;
+    }
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
