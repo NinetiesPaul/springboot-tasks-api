@@ -4,15 +4,18 @@ import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 
 @Table(name = "task")
 @Entity
@@ -21,7 +24,7 @@ public class Tasks {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
 
-    //@NotBlank(message = "Title is mandatory")
+    @NotBlank(message = "Title is mandatory")
     @Column(unique = false, length = 200, nullable = false)
 	private String title;
 
@@ -35,6 +38,10 @@ public class Tasks {
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
 	private TaskStatusEnum status;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "created_by", referencedColumnName = "id")
+    private Users createdBy;
 
     @CreationTimestamp
     @Column(name = "created_on")
@@ -105,5 +112,15 @@ public class Tasks {
     public void setClosedOn(Date closedOn)
     {
         this.closedOn = closedOn;
+    }
+
+    public Users getCreatedBy()
+    {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Users createdBy)
+    {
+        this.createdBy = createdBy;
     }
 }
