@@ -87,11 +87,11 @@ public class TasksController {
 		}
 
 		if (task.getStatus() == TaskStatusEnum.closed) {
-			throw new Exception("Cannot close Task on /update");
+			throw new Exception("Invalid operation: use PUT /api/task/close/{id} to close a task");
 		}
 
 		if (optionalTask.get().getStatus() == TaskStatusEnum.closed) {
-			throw new Exception("Cannot update a closed a task");
+			throw new Exception("Invalid operation: cannot update a closed task");
 		}
 
 		Tasks taskUpdated = tasksService.update(optionalTask.get(), task);
@@ -99,12 +99,16 @@ public class TasksController {
 	}
 
 	@PutMapping(path = "/close/{id}")
-	public ResponseEntity<Tasks> close(@PathVariable("id") Integer id)
+	public ResponseEntity<Tasks> close(@PathVariable("id") Integer id) throws Exception
 	{
 		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
 
 		if (!optionalTask.isPresent()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		if (optionalTask.get().getStatus() == TaskStatusEnum.closed) {
+			throw new Exception("Invalid operation: cannot close a closed task");
 		}
 
 		Tasks taskClosed = tasksService.close(optionalTask.get());
