@@ -99,7 +99,7 @@ public class TasksController {
 	}
 
 	@PutMapping(path = "/close/{id}")
-	public ResponseEntity<Tasks> close(@PathVariable("id") Integer id) throws Exception
+	public ResponseEntity<Tasks> close(HttpServletRequest request, @PathVariable("id") Integer id) throws Exception
 	{
 		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
 
@@ -111,7 +111,11 @@ public class TasksController {
 			throw new Exception("Invalid operation: cannot close a closed task");
 		}
 
-		Tasks taskClosed = tasksService.close(optionalTask.get());
+		String jwtToken = request.getHeader("Authorization").substring(7);
+		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
+		Users user = usersService.findByName(username);
+
+		Tasks taskClosed = tasksService.close(optionalTask.get(), user);
 		return new ResponseEntity<>(taskClosed, HttpStatus.OK);
 	}
 

@@ -16,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Table(name = "task")
 @Entity
@@ -28,9 +29,11 @@ public class Tasks {
     @Column(unique = false, length = 200, nullable = false)
 	private String title;
 
+    @NotBlank(message = "Description is mandatory")
     @Column(unique = false, length = 200, nullable = true)
 	private String description;
 
+    @NotNull(message = "Type is mandatory")
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
 	private TaskTypeEnum type;
@@ -46,6 +49,10 @@ public class Tasks {
     @CreationTimestamp
     @Column(name = "created_on")
 	private Date createdOn;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "closed_by", referencedColumnName = "id")
+    private Users closedBy;
 
     @Column(name = "closed_on")
 	private Date closedOn;
@@ -94,12 +101,12 @@ public class Tasks {
         this.status = status;
     }
 
-    public Date getStartedOn()
+    public Date getCreatedOn()
     {
         return createdOn;
     }
 
-    public void setStartedOn(Date createdOn)
+    public void setCreatedOn(Date createdOn)
     {
         this.createdOn = createdOn;
     }
@@ -122,5 +129,15 @@ public class Tasks {
     public void setCreatedBy(Users createdBy)
     {
         this.createdBy = createdBy;
+    }
+
+    public Users getClosedBy()
+    {
+        return closedBy;
+    }
+
+    public void setClosedBy(Users closedBy)
+    {
+        this.closedBy = closedBy;
     }
 }

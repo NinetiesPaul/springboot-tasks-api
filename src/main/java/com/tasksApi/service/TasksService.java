@@ -20,9 +20,6 @@ public class TasksService {
 
     public Tasks create(Tasks task, Users createdBy) {
         task.setStatus(TaskStatusEnum.open);
-
-        TaskTypeEnum type = (task.getType() != null) ? task.getType() : TaskTypeEnum.feature;
-        task.setType(type);
         task.setCreatedBy(createdBy);
 
         taskRepository.save(task);
@@ -46,11 +43,12 @@ public class TasksService {
         return task;
 	}
 
-    public Tasks close(Tasks task) {
+    public Tasks close(Tasks task, Users closedBy) {
         task.setStatus(TaskStatusEnum.closed);
 
         Date date = new Date(System.currentTimeMillis());
         task.setClosedOn(date);
+        task.setClosedBy(closedBy);
         
         taskRepository.save(task);
         return task;
