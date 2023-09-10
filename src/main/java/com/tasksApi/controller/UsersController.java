@@ -42,7 +42,7 @@ public class UsersController {
 	@Autowired
 	private UsersService usersService;
 
-	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public ResponseEntity<?> generateAuthenticationToken(@Valid @RequestBody UsersRequest authenticationRequest)
 			throws Exception {
 
