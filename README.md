@@ -5,7 +5,7 @@ A simple API in Spring Boot. It has some basic functions, like:
 - Perform CRUD operations of Tasks
 - Some basics business rules enforced
 
-My main goal is to showcase some of Spring Boot features like:
+My main goal is to showcase some concepts, such as:
 
 - Migrations and model relationship
 - Authentication configuration
