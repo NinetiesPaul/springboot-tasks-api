@@ -34,3 +34,21 @@ mvn spring-boot:run
 to install all packages and run the application. If no errors is shown and the CLI shows the server is running, you're good to go!
 
 ## Usage
+
+### __Users__
+
+#### User creation
+
+#### User authentication
+
+### __Tasks__
+
+#### Creating a new Task
+
+#### Listing all Tasks
+
+#### Updating a Task
+
+#### Deleting a Task
+
+#### Closing a Task
