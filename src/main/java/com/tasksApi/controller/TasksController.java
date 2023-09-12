@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -17,11 +18,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tasksApi.config.JwtTokenUtil;
 import com.tasksApi.model.TaskStatusEnum;
+import com.tasksApi.model.TaskTypeEnum;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
 import com.tasksApi.service.TasksService;
@@ -48,9 +51,29 @@ public class TasksController {
     }
 	
 	@GetMapping(path = "/list")
-	public ResponseEntity<Iterable<Tasks>> findAll()
+	public ResponseEntity<Iterable<Tasks>> findAll(@RequestParam(required = false) String status, @RequestParam(required = false) String type, @RequestParam(required = false) Integer created_by)
 	{
-		Iterable<Tasks> allTasks = tasksService.findAllTasks();
+		Tasks task = new Tasks();
+
+		if (status != null) {
+			task.setStatus(TaskStatusEnum.valueOf(status));
+		}
+
+		if (type != null) {
+			task.setType(TaskTypeEnum.valueOf(type));
+		}
+
+		if (created_by != null) {
+			Optional<Users> optionalCreatedBy = usersService.findById(created_by);
+			if (!optionalCreatedBy.isPresent()) {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+			
+			task.setCreatedBy(optionalCreatedBy.get());
+		}
+
+		Example<Tasks> exampleTasks = Example.of(task);
+		Iterable<Tasks> allTasks = tasksService.findAllTasks(exampleTasks);
 		return new ResponseEntity<>(allTasks, HttpStatus.OK);
 	}
 	
