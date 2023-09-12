@@ -1,6 +1,7 @@
 package com.tasksApi.service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +24,8 @@ public class UsersService implements UserDetailsService {
 	private PasswordEncoder bcryptEncoder;
 
     @Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
+	{
 		Users user = usersRepository.findByUsername(username);
 		if (user == null) {
 			throw new UsernameNotFoundException("User not found with username: " + username);
@@ -36,6 +38,11 @@ public class UsersService implements UserDetailsService {
 	{
 		Users user = usersRepository.findByUsername(username);
 		return user;
+	}
+
+	public Optional<Users> findById(Integer userId)
+	{
+		return usersRepository.findById(userId);
 	}
     
 	public Users save(UsersRequest user) {
