@@ -57,6 +57,14 @@ public class Tasks {
     @Column(name = "closed_on")
 	private Date closedOn;
 
+    public Tasks()
+	{
+	}
+
+    public Tasks(Integer id, String title, String description, TaskTypeEnum type, TaskStatusEnum status, Users createdBy, Date createdOn, Users closedBy, Date closedOn)
+	{
+	}
+
     public Integer getId() {
         return id;
     }
