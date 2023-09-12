@@ -38,17 +38,69 @@ to install all packages and run the application. If no errors is shown and the C
 ### __Users__
 
 #### User creation
+```
+curl --location 'http://localhost:8080/api/users/register' \
+--header 'Content-Type: application/json' \
+--data '{
+    "username": "t.soprano",
+    "password": "password"
+}'
+```
 
 #### User authentication
+```
+curl --location 'http://localhost:8080/api/users/login' \
+--header 'Content-Type: application/json' \
+--data '{
+    "username": "t.soprano",
+    "password": "password"
+}'
+```
 
 ### __Tasks__
 
 #### Creating a new Task
+```
+curl --location 'http://localhost:8080/api/task/create' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer {token}' \
+--data '{
+    "title": "New Task again",
+    "description": "Here is a description",
+    "type": "feature"
+}'
+```
 
 #### Listing all Tasks
+```
+curl --location 'http://localhost:8080/api/task/list' \
+--header 'Authorization: Bearer {token}'
+```
+
+#### Selecting a single Task
+```
+curl --location 'http://localhost:8080/api/task/view/{taskId}' \
+--header 'Authorization: Bearer {token}'
+```
 
 #### Updating a Task
+```
+curl --location --request PUT 'http://localhost:8080/api/task/update/{taskId}' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer {token}' \
+--data '{
+    "type": "hotfix"
+}'
+```
 
 #### Deleting a Task
+```
+curl --location --request DELETE 'http://localhost:8080/api/task/delete/{taskId}' \
+--header 'Authorization: Bearer {token}'
+```
 
 #### Closing a Task
+```
+curl --location --request PUT 'http://localhost:8080/api/task/close/{taskId}' \
+--header 'Authorization: Bearer {token}'
+```
