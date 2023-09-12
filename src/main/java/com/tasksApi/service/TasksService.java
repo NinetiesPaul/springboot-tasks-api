@@ -3,6 +3,7 @@ package com.tasksApi.service;
 import java.util.Date;
 import java.util.Optional;
 
+import org.springframework.data.domain.Example;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,8 @@ public class TasksService {
     @Autowired
     private TaskRepository taskRepository;
 
-    public Tasks create(Tasks task, Users createdBy) {
+    public Tasks create(Tasks task, Users createdBy)
+    {
         task.setStatus(TaskStatusEnum.open);
         task.setCreatedBy(createdBy);
 
@@ -26,7 +28,8 @@ public class TasksService {
         return task;
 	}
 
-    public Tasks update(Tasks task, Tasks taskRequest) {
+    public Tasks update(Tasks task, Tasks taskRequest)
+    {
         String title = (taskRequest.getTitle() != null) ? taskRequest.getTitle() : task.getTitle();
         task.setTitle(title);
 
@@ -43,7 +46,8 @@ public class TasksService {
         return task;
 	}
 
-    public Tasks close(Tasks task, Users closedBy) {
+    public Tasks close(Tasks task, Users closedBy)
+    {
         task.setStatus(TaskStatusEnum.closed);
 
         Date date = new Date(System.currentTimeMillis());
@@ -54,15 +58,23 @@ public class TasksService {
         return task;
 	}
 
-    public void delete(Tasks task) {
+    public void delete(Tasks task)
+    {
         taskRepository.delete(task);
 	}
 
-    public Iterable<Tasks> findAllTasks() {
+    public Iterable<Tasks> findAllTasks()
+    {
         return taskRepository.findAll();
 	}
 
-    public Optional<Tasks> findOneTask(Integer id) {
+    public Iterable<Tasks> findAllTasks(Example tasks)
+    {
+        return taskRepository.findAll(tasks);
+	}
+
+    public Optional<Tasks> findOneTask(Integer id)
+    {
         return taskRepository.findById(id);
 	}
 }
