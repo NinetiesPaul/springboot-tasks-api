@@ -74,7 +74,7 @@ public class UsersController {
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public Map<String, String> handleValidationExceptions(SQLIntegrityConstraintViolationException ex) {
 		Map<String, String> errors = new HashMap<>();
-		errors.put("error", ex.getMessage());
+		errors.put("error", "E-mail already taken");
         return errors;
     }
 
@@ -88,5 +88,5 @@ public class UsersController {
             errors.put(fieldName, errorMessage);
         });
         return errors;
-    }
+    	}
 }

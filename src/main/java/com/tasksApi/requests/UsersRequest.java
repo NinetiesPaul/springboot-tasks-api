@@ -2,11 +2,13 @@ package com.tasksApi.requests;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 public class UsersRequest implements Serializable {
     private static final long serialVersionUID = 5926468583005150707L;
 
+	@Email(message = "Email is not valid", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
 	@NotBlank(message = "Username is mandatory")
 	private String username;
 
