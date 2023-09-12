@@ -72,8 +72,11 @@ curl --location 'http://localhost:8080/api/task/create' \
 ```
 
 #### Listing all Tasks
+Replace ```{created_by}``` with a User Id  
+Replace ```{status}``` with any of the following: new, in_dev, in_qa, blocked, closed  
+Replace ```{type}``` with any of the following: feature, bugfix, hotfix  
 ```
-curl --location 'http://localhost:8080/api/task/list' \
+curl --location 'http://localhost:8080/api/task/list?type={type}&status={status}&created_by={created_by}' \
 --header 'Authorization: Bearer {token}'
 ```
 
