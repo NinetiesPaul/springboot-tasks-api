@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
@@ -51,7 +52,7 @@ public class TasksController {
     }
 	
 	@GetMapping(path = "/list")
-	public ResponseEntity<Iterable<Tasks>> findAll(@RequestParam(required = false) String status, @RequestParam(required = false) String type, @RequestParam(required = false) Integer created_by)
+	public ResponseEntity<Map<String, Object>> findAll(@RequestParam(required = false) String status, @RequestParam(required = false) String type, @RequestParam(required = false) Integer created_by)
 	{
 		Tasks task = new Tasks();
 
@@ -66,7 +67,7 @@ public class TasksController {
 		if (created_by != null) {
 			Optional<Users> optionalCreatedBy = usersService.findById(created_by);
 			if (!optionalCreatedBy.isPresent()) {
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				return new ResponseEntity<>(handleResponseWithMessage("USER_NOT_FOUND", false), HttpStatus.NOT_FOUND);
 			}
 			
 			task.setCreatedBy(optionalCreatedBy.get());
@@ -74,39 +75,45 @@ public class TasksController {
 
 		Example<Tasks> exampleTasks = Example.of(task);
 		Iterable<Tasks> allTasks = tasksService.findAllTasks(exampleTasks);
-		return new ResponseEntity<>(allTasks, HttpStatus.OK);
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("tasks", allTasks);
+		result.put("total", IterableUtils.size(allTasks));
+
+
+		return new ResponseEntity<>(handleSuccess(result), HttpStatus.OK);
 	}
 	
 	@GetMapping(path = "/view/{id}")
-	public ResponseEntity<Tasks> findOne(@PathVariable("id") Integer id)
+	public ResponseEntity<Map<String, Object>> findOne(@PathVariable("id") Integer id)
 	{
 		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
 
 		if (optionalTask.isPresent()) {
-			return new ResponseEntity<>(optionalTask.get(), HttpStatus.OK);
+			return new ResponseEntity<>(handleSuccess(optionalTask.get()), HttpStatus.OK);
 		}
 
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(handleResponseWithMessage("TASK_NOT_FOUND", false), HttpStatus.NOT_FOUND);
 	}
 	
 	@PostMapping(path = "/create")
-	public ResponseEntity<Tasks> create(@Valid @RequestBody Tasks task, HttpServletRequest request) throws Exception
+	public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody Tasks task, HttpServletRequest request) throws Exception
 	{
 		String jwtToken = request.getHeader("Authorization").substring(7);
 		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
 		Users user = usersService.findByName(username);
 
 		Tasks taskCreated = tasksService.create(task, user);
-		return new ResponseEntity<>(taskCreated, HttpStatus.OK);
+		return new ResponseEntity<>(handleSuccess(taskCreated), HttpStatus.OK);
 	}
 	
 	@PutMapping(path = "/update/{id}")
-	public ResponseEntity<Tasks> update(@RequestBody Tasks task, @PathVariable("id") Integer id) throws Exception
+	public ResponseEntity<Map<String, Object>> update(@RequestBody Tasks task, @PathVariable("id") Integer id) throws Exception
 	{
 		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
 
 		if (!optionalTask.isPresent()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(handleResponseWithMessage("TASK_NOT_FOUND", false), HttpStatus.NOT_FOUND);
 		}
 
 		if (task.getStatus() == TaskStatusEnum.closed) {
@@ -118,16 +125,16 @@ public class TasksController {
 		}
 
 		Tasks taskUpdated = tasksService.update(optionalTask.get(), task);
-		return new ResponseEntity<>(taskUpdated, HttpStatus.OK);
+		return new ResponseEntity<>(handleSuccess(taskUpdated), HttpStatus.OK);
 	}
 
 	@PutMapping(path = "/close/{id}")
-	public ResponseEntity<Tasks> close(HttpServletRequest request, @PathVariable("id") Integer id) throws Exception
+	public ResponseEntity<Map<String, Object>> close(HttpServletRequest request, @PathVariable("id") Integer id) throws Exception
 	{
 		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
 
 		if (!optionalTask.isPresent()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(handleResponseWithMessage("TASK_NOT_FOUND", false), HttpStatus.NOT_FOUND);
 		}
 
 		if (optionalTask.get().getStatus() == TaskStatusEnum.closed) {
@@ -139,21 +146,37 @@ public class TasksController {
 		Users user = usersService.findByName(username);
 
 		Tasks taskClosed = tasksService.close(optionalTask.get(), user);
-		return new ResponseEntity<>(taskClosed, HttpStatus.OK);
+		return new ResponseEntity<>(handleSuccess(taskClosed), HttpStatus.OK);
 	}
 
 	@DeleteMapping(path = "/delete/{id}")
-	public ResponseEntity<Boolean> remove(@PathVariable("id") Integer id)
+	public ResponseEntity<Map<String, Object>> remove(@PathVariable("id") Integer id)
 	{
 		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
 
 		if (!optionalTask.isPresent()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(handleResponseWithMessage("TASK_NOT_FOUND", false), HttpStatus.NOT_FOUND);
 		}
 
 		tasksService.delete(optionalTask.get());
-		return new ResponseEntity<>(HttpStatus.OK);
+		return new ResponseEntity<>(handleResponseWithMessage("Task id '" + id + "' was deleted", true), HttpStatus.OK);
 	}
+
+    public Map<String, Object> handleSuccess(Object data)
+	{
+		Map<String, Object> response = new HashMap<>();
+		response.put("success", true);
+		response.put("data", data);
+        return response;
+    }
+
+    public Map<String, Object> handleResponseWithMessage(String msg, Boolean success)
+	{
+		Map<String, Object> response = new HashMap<>();
+		response.put("success", success);
+		response.put("msg", msg);
+        return response;
+    }
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(Exception.class)

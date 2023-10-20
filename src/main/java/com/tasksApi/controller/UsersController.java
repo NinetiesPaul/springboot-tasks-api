@@ -31,7 +31,6 @@ import com.tasksApi.service.UsersService;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/users")
 public class UsersController {
     @Autowired
 	private AuthenticationManager authenticationManager;
@@ -52,7 +51,7 @@ public class UsersController {
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
 
-		return ResponseEntity.ok(new JwtResponse(token));
+		return ResponseEntity.ok(handleSuccess(new JwtResponse(token)));
 	}
 
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
@@ -69,6 +68,14 @@ public class UsersController {
 			throw new Exception("INVALID_CREDENTIALS", e);
 		}
 	}
+
+	public Map<String, Object> handleSuccess(JwtResponse token)
+	{
+		Map<String, Object> response = new HashMap<>();
+		response.put("success", true);
+		response.put("token", token.getToken());
+        return response;
+    }
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)

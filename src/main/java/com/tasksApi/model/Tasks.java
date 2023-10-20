@@ -4,6 +4,8 @@ import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -44,17 +46,21 @@ public class Tasks {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "created_by", referencedColumnName = "id")
+    @JsonProperty("created_by")
     private Users createdBy;
 
     @CreationTimestamp
     @Column(name = "created_on")
+    @JsonProperty("created_on")
 	private Date createdOn;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "closed_by", referencedColumnName = "id")
+    @JsonProperty("closed_by")
     private Users closedBy;
 
     @Column(name = "closed_on")
+    @JsonProperty("closed_on")
 	private Date closedOn;
 
     public Tasks()
