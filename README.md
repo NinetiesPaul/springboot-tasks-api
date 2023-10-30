@@ -42,6 +42,7 @@ to install all packages and run the application. If no errors is shown and the C
 curl --location 'http://localhost:8080/api/users/register' \
 --header 'Content-Type: application/json' \
 --data '{
+    "name": "T. Soprano",
     "username": "t.soprano",
     "password": "password"
 }'
