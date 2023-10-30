@@ -12,6 +12,8 @@ public class UsersRequest implements Serializable {
 	@NotBlank(message = "Username is mandatory")
 	private String username;
 
+	private String name;
+
 	@NotBlank(message = "Password is mandatory")
 	private String password;
 
@@ -19,10 +21,21 @@ public class UsersRequest implements Serializable {
 	{
 	}
 
-	public UsersRequest(String username, String password)
+	public UsersRequest(String name, String username, String password)
 	{
+		this.setName(name);
 		this.setUsername(username);
 		this.setPassword(password);
+	}
+
+	public String getName()
+	{
+		return this.name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
 	}
 
 	public String getUsername()

@@ -16,6 +16,9 @@ public class Users {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
 
+    @Column(nullable = false)
+	private String name;
+
     @Column(unique = true, length = 40, nullable = false)
 	private String username;
 
@@ -26,6 +29,16 @@ public class Users {
     public Integer getId()
     {
         return id;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public String getName()
+    {
+        return name;
     }
 
     public void setUsername(String username)
