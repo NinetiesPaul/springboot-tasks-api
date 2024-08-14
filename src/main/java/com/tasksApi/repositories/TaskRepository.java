@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import com.tasksApi.model.Tasks;
 
+@SuppressWarnings("rawtypes")
 @Repository
 public interface TaskRepository extends CrudRepository<Tasks, Integer>, QueryByExampleExecutor {
 }
