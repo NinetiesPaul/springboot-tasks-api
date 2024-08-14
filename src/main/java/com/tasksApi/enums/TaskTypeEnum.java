@@ -1,4 +1,4 @@
-package com.tasksApi.model;
+package com.tasksApi.enums;
 
 public enum TaskTypeEnum {
     feature,

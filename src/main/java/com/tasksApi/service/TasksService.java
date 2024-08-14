@@ -7,8 +7,8 @@ import org.springframework.data.domain.Example;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.tasksApi.model.TaskStatusEnum;
-import com.tasksApi.model.TaskTypeEnum;
+import com.tasksApi.enums.TaskStatusEnum;
+import com.tasksApi.enums.TaskTypeEnum;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
 import com.tasksApi.repositories.TaskRepository;

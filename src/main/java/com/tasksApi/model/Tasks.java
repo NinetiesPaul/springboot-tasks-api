@@ -5,6 +5,8 @@ import java.util.Date;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tasksApi.enums.TaskStatusEnum;
+import com.tasksApi.enums.TaskTypeEnum;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tasksApi.config.JwtTokenUtil;
-import com.tasksApi.model.TaskStatusEnum;
-import com.tasksApi.model.TaskTypeEnum;
+import com.tasksApi.enums.TaskStatusEnum;
+import com.tasksApi.enums.TaskTypeEnum;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
 import com.tasksApi.service.TasksService;
