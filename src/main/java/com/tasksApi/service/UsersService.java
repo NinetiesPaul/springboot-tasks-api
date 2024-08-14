@@ -24,19 +24,19 @@ public class UsersService implements UserDetailsService {
 	private PasswordEncoder bcryptEncoder;
 
     @Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException
 	{
-		Users user = usersRepository.findByUsername(username);
+		Users user = usersRepository.findByEmail(email);
 		if (user == null) {
-			throw new UsernameNotFoundException("User not found with username: " + username);
+			throw new UsernameNotFoundException("User not found with username: " + email);
 		}
-		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
+		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
 				new ArrayList<>());
 	}
 
 	public Users findByName(String username)
 	{
-		Users user = usersRepository.findByUsername(username);
+		Users user = usersRepository.findByEmail(username);
 		return user;
 	}
 
@@ -48,7 +48,7 @@ public class UsersService implements UserDetailsService {
 	public Users save(UsersRequest user) {
 		Users newUser = new Users();
 		newUser.setName(user.getName());
-		newUser.setUsername(user.getUsername());
+		newUser.setEmail(user.getEmail());
 		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
 		return usersRepository.save(newUser);
 	}

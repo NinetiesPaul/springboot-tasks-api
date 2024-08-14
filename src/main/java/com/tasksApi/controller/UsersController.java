@@ -1,6 +1,7 @@
 package com.tasksApi.controller;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +15,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tasksApi.config.JwtTokenUtil;
+import com.tasksApi.requests.AuthenticationRequest;
 import com.tasksApi.requests.UsersRequest;
 import com.tasksApi.responses.JwtResponse;
 import com.tasksApi.service.UsersService;
@@ -42,12 +43,12 @@ public class UsersController {
 	private UsersService usersService;
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ResponseEntity<?> generateAuthenticationToken(@Valid @RequestBody UsersRequest authenticationRequest)
+	public ResponseEntity<?> generateAuthenticationToken(@Valid @RequestBody AuthenticationRequest authenticationRequest)
 			throws Exception {
 
-		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+		authenticate(authenticationRequest.getUserName(), authenticationRequest.getPassword());
 
-		final UserDetails userDetails = usersService.loadUserByUsername(authenticationRequest.getUsername());
+		final UserDetails userDetails = usersService.loadUserByUsername(authenticationRequest.getUserName());
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
 

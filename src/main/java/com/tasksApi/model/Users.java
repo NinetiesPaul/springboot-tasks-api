@@ -20,7 +20,7 @@ public class Users {
 	private String name;
 
     @Column(unique = true, length = 40, nullable = false)
-	private String username;
+	private String email;
 
     @JsonIgnore
     @Column(unique = false, length = 200, nullable = true)
@@ -41,14 +41,14 @@ public class Users {
         return name;
     }
 
-    public void setUsername(String username)
+    public void setEmail(String email)
     {
-        this.username = username;
+        this.email = email;
     }
 
-    public String getUsername()
+    public String getEmail()
     {
-        return username;
+        return email;
     }
 
     public void setPassword(String password)
