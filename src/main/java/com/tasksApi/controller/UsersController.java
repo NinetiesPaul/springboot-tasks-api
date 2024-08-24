@@ -15,7 +15,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +24,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tasksApi.config.JwtTokenUtil;
+import com.tasksApi.customValidations.RegisterRequestException;
+import com.tasksApi.customValidations.UserRegistrationValidator;
 import com.tasksApi.requests.AuthenticationRequest;
 import com.tasksApi.requests.UsersRequest;
 import com.tasksApi.responses.JwtResponse;
@@ -56,7 +57,15 @@ public class UsersController {
 	}
 
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public ResponseEntity<?> saveUser(@Valid @RequestBody UsersRequest user) throws Exception, SQLIntegrityConstraintViolationException {
+	public ResponseEntity<?> saveUser(@Valid @RequestBody UsersRequest user) throws Exception, RegisterRequestException, SQLIntegrityConstraintViolationException {
+
+		UserRegistrationValidator registerRequestValidator = new UserRegistrationValidator();
+		ArrayList<String> validationMessages = registerRequestValidator.validate(user);
+
+		if (validationMessages.size() > 0) {
+			throw new RegisterRequestException(validationMessages);
+		}
+
 		return ResponseEntity.ok(usersService.save(user));
 	}
 
@@ -80,26 +89,29 @@ public class UsersController {
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
-    public Map<String, String> handleValidationExceptions(SQLIntegrityConstraintViolationException ex) {
-		Map<String, String> errors = new HashMap<>();
-		errors.put("error", "E-mail already taken");
-        return errors;
+    public Map<String, Object> handleValidationExceptions(SQLIntegrityConstraintViolationException ex) {
+		Map<String, Object> response = new HashMap<>();
+
+		ArrayList<String> message = new ArrayList<>();
+		message.add("EMAIL_ALREADY_TAKEN");
+        
+		response.put("message", message);
+		response.put("success", false);
+
+        return response;
     }
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, Object> response = new HashMap<>();
-	
+	@ExceptionHandler(RegisterRequestException.class)
+    public Map<String, Object> handleValidationException(RegisterRequestException exception)
+	{
+		Map<String, Object> response = new HashMap<>();
 
-		ArrayList<String> errors = new ArrayList<>();
-
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String errorMessage = error.getDefaultMessage();
-            errors.add(errorMessage);
-        });
-		response.put("message", errors);
+		//ArrayList<String> validationMessages = registerRequestException.getValidationMessages();
+        
+		response.put("message", exception.getValidationMessages());
 		response.put("success", false);
+
         return response;
-    	}
+    }
 }
