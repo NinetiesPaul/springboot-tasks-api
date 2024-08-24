@@ -4,9 +4,9 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.stereotype.Repository;
 
-import com.tasksApi.model.Task;
+import com.tasksApi.model.TaskHistory;
 
 @SuppressWarnings("rawtypes")
 @Repository
-public interface TaskRepository extends CrudRepository<Task, Integer>, QueryByExampleExecutor {
+public interface TaskHistoryRepository extends CrudRepository<TaskHistory, Integer>, QueryByExampleExecutor {
 }

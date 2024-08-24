@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tasksApi.config.JwtTokenUtil;
 import com.tasksApi.enums.TaskStatusEnum;
 import com.tasksApi.enums.TaskTypeEnum;
+import com.tasksApi.model.Task;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
 import com.tasksApi.service.TasksService;
@@ -40,6 +41,7 @@ import javax.validation.Valid;
 @CrossOrigin
 public class TasksController {
 	
+	@Autowired
 	private TasksService tasksService;
 	
 	@Autowired
@@ -48,11 +50,6 @@ public class TasksController {
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
 
-	public TasksController(TasksService tasksService)
-	{
-        this.tasksService = tasksService;
-    }
-	
 	@GetMapping(path = "/list")
 	public ResponseEntity<Map<String, Object>> findAll(@RequestParam(required = false) String status, @RequestParam(required = false) String type, @RequestParam(required = false) Integer created_by)
 	{
@@ -89,7 +86,7 @@ public class TasksController {
 	@GetMapping(path = "/view/{id}")
 	public ResponseEntity<Map<String, Object>> findOne(@PathVariable("id") Integer id)
 	{
-		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
+		Optional<Task> optionalTask = tasksService.findOneTaskWithHistory(id);
 
 		if (optionalTask.isPresent()) {
 			return new ResponseEntity<>(handleSuccess(optionalTask.get()), HttpStatus.OK);
@@ -110,7 +107,7 @@ public class TasksController {
 	}
 	
 	@PutMapping(path = "/update/{id}")
-	public ResponseEntity<Map<String, Object>> update(@RequestBody Tasks task, @PathVariable("id") Integer id) throws Exception
+	public ResponseEntity<Map<String, Object>> update(@RequestBody Tasks task, @PathVariable("id") Integer id, HttpServletRequest request) throws Exception
 	{
 		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
 
@@ -125,8 +122,12 @@ public class TasksController {
 		if (optionalTask.get().getStatus() == TaskStatusEnum.closed) {
 			throw new Exception("Invalid operation: cannot update a closed task");
 		}
+		
+		String jwtToken = request.getHeader("Authorization").substring(7);
+		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
+		Users changedBy = usersService.findByName(username);
 
-		Tasks taskUpdated = tasksService.update(optionalTask.get(), task);
+		Tasks taskUpdated = tasksService.update(optionalTask.get(), task, changedBy);
 		return new ResponseEntity<>(handleSuccess(taskUpdated), HttpStatus.OK);
 	}
 
