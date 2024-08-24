@@ -1,5 +1,6 @@
 package com.tasksApi.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 
@@ -8,72 +9,144 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tasksApi.enums.TaskStatusEnum;
-import com.tasksApi.enums.TaskTypeEnum;
+import com.tasksApi.model.Task;
+import com.tasksApi.model.TaskHistory;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
+import com.tasksApi.repositories.TaskHistoryRepository;
 import com.tasksApi.repositories.TaskRepository;
+import com.tasksApi.repositories.TasksRepository;
 
 @Service
 public class TasksService {
     
     @Autowired
+    private TasksRepository tasksRepository;
+    
+    @Autowired
     private TaskRepository taskRepository;
+
+    @Autowired
+    private TaskHistoryRepository taskHistoryRepository;
 
     public Tasks create(Tasks task, Users createdBy)
     {
         task.setStatus(TaskStatusEnum.open);
         task.setCreatedBy(createdBy);
 
-        taskRepository.save(task);
+        tasksRepository.save(task);
         return task;
 	}
 
-    public Tasks update(Tasks task, Tasks taskRequest)
+    public Tasks update(Tasks task, Tasks taskRequest, Users changedBy)
     {
-        String title = (taskRequest.getTitle() != null) ? taskRequest.getTitle() : task.getTitle();
-        task.setTitle(title);
+        ArrayList<TaskHistory> taskHistories = new ArrayList<TaskHistory>();
 
-        String description = (taskRequest.getDescription() != null) ? taskRequest.getDescription() : task.getDescription();
-        task.setDescription(description);
+        if (taskRequest.getTitle() != null && !taskRequest.getTitle().equals(task.getTitle())) {
+            TaskHistory taskHistory = new TaskHistory();
+            taskHistory.setField("title");
+            taskHistory.setChangedFrom(task.getTitle());
+            taskHistory.setChangedTo(taskRequest.getTitle());
+            taskHistory.setChangedOn(null);
+            taskHistory.setChangedBy(changedBy);
+            taskHistory.setTask(task);
+            taskHistories.add(taskHistory);
 
-        TaskTypeEnum type = (taskRequest.getType() != null) ? taskRequest.getType() : task.getType();
-        task.setType(type);
+            task.setTitle(taskRequest.getTitle());
+        }
 
-        TaskStatusEnum status = (taskRequest.getStatus() != null) ? taskRequest.getStatus() : task.getStatus();
-        task.setStatus(status);
+        if (taskRequest.getDescription() != null && (!taskRequest.getDescription().equals(task.getDescription()))) {
+            TaskHistory taskHistory = new TaskHistory();
+            taskHistory.setField("description");
+            taskHistory.setChangedFrom(task.getDescription());
+            taskHistory.setChangedTo(taskRequest.getDescription());
+            taskHistory.setChangedOn(null);
+            taskHistory.setChangedBy(changedBy);
+            taskHistory.setTask(task);
+            taskHistories.add(taskHistory);
+
+            task.setDescription(taskRequest.getDescription());
+        }
+
+        if (taskRequest.getType() != null && (!taskRequest.getType().equals(task.getType()))) {
+            TaskHistory taskHistory = new TaskHistory();
+            taskHistory.setField("type");
+            taskHistory.setChangedFrom(task.getType().toString());
+            taskHistory.setChangedTo(taskRequest.getType().toString());
+            taskHistory.setChangedOn(null);
+            taskHistory.setChangedBy(changedBy);
+            taskHistory.setTask(task);
+            taskHistories.add(taskHistory);
+
+            task.setType(taskRequest.getType());
+        }
+
+        if (taskRequest.getStatus() != null && (!taskRequest.getStatus().equals(task.getStatus()))) {
+            TaskHistory taskHistory = new TaskHistory();
+            taskHistory.setField("status");
+            taskHistory.setChangedFrom(task.getStatus().toString());
+            taskHistory.setChangedTo(taskRequest.getStatus().toString());
+            taskHistory.setChangedOn(null);
+            taskHistory.setChangedBy(changedBy);
+            taskHistory.setTask(task);
+            taskHistories.add(taskHistory);
+
+            task.setStatus(taskRequest.getStatus());
+        }
         
-        taskRepository.save(task);
+        tasksRepository.save(task);
+
+        for (TaskHistory newTaskHistory: taskHistories) {
+            taskHistoryRepository.save(newTaskHistory);
+        }
         return task;
 	}
 
     public Tasks close(Tasks task, Users closedBy)
     {
+        String oldStatus = task.getStatus().toString();
         task.setStatus(TaskStatusEnum.closed);
 
-        Date date = new Date(System.currentTimeMillis());
-        task.setClosedOn(date);
+        Date closedOn = new Date(System.currentTimeMillis());
+        task.setClosedOn(closedOn);
         task.setClosedBy(closedBy);
         
-        taskRepository.save(task);
+        tasksRepository.save(task);
+
+        TaskHistory taskHistory = new TaskHistory();
+        taskHistory.setField("status");
+        taskHistory.setChangedFrom(oldStatus);
+        taskHistory.setChangedTo(TaskStatusEnum.closed.toString());
+        taskHistory.setChangedOn(closedOn);
+        taskHistory.setChangedBy(closedBy);
+        taskHistory.setTask(task);
+
+        taskHistoryRepository.save(taskHistory);
         return task;
 	}
 
     public void delete(Tasks task)
     {
-        taskRepository.delete(task);
+        tasksRepository.delete(task);
 	}
 
     public Iterable<Tasks> findAllTasks()
     {
-        return taskRepository.findAll();
+        return tasksRepository.findAll();
 	}
 
+    @SuppressWarnings("unchecked")
     public Iterable<Tasks> findAllTasks(Example tasks)
     {
-        return taskRepository.findAll(tasks);
+        return tasksRepository.findAll(tasks);
 	}
 
     public Optional<Tasks> findOneTask(Integer id)
+    {
+        return tasksRepository.findById(id);
+	}
+
+    public Optional<Task> findOneTaskWithHistory(Integer id)
     {
         return taskRepository.findById(id);
 	}
