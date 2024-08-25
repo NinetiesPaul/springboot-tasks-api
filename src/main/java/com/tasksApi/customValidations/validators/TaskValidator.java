@@ -142,42 +142,23 @@ public class TaskValidator {
                 validationMessages.add("EMPTY_TYPE");
             }
 
+            boolean isString = false;
             try {
                 Integer.parseInt(taskType);
                 validationMessages.add("TYPE_NOT_STRING");
             } catch (NumberFormatException nfe) {
+                isString = true;
                 System.out.println("Type is not integer");
             }
 
-            List<String> availableTypes = Stream.of(TaskTypeEnum.class.getEnumConstants())
-                .map(Enum::name)
-                .collect(Collectors.toList());
+            if (isString) {
+                List<String> availableTypes = Stream.of(TaskTypeEnum.class.getEnumConstants())
+                    .map(Enum::name)
+                    .collect(Collectors.toList());
 
-            if (!availableTypes.contains(taskType)) {
-                validationMessages.add("INVALID_TYPE");
-            }
-        }
-
-        if (task.getType() != null) {
-            String taskType = task.getType().trim();
-
-            if (taskType.equals("")) {
-                validationMessages.add("EMPTY_TYPE");
-            }
-
-            try {
-                Integer.parseInt(taskType);
-                validationMessages.add("TYPE_NOT_STRING");
-            } catch (NumberFormatException nfe) {
-                System.out.println("Type is not integer");
-            }
-
-            List<String> availableTypes = Stream.of(TaskTypeEnum.class.getEnumConstants())
-                .map(Enum::name)
-                .collect(Collectors.toList());
-
-            if (!availableTypes.contains(taskType)) {
-                validationMessages.add("INVALID_TYPE");
+                if (!availableTypes.contains(taskType)) {
+                    validationMessages.add("INVALID_TYPE");
+                }
             }
         }
 
@@ -188,19 +169,23 @@ public class TaskValidator {
                 validationMessages.add("EMPTY_STATUS");
             }
 
+            boolean isString = false;
             try {
                 Integer.parseInt(taskStatus);
                 validationMessages.add("STATUS_NOT_STRING");
             } catch (NumberFormatException nfe) {
+                isString = true;
                 System.out.println("Status is not integer");
             }
 
-            List<String> availableStatus = Stream.of(TaskStatusEnum.class.getEnumConstants())
-                .map(Enum::name)
-                .collect(Collectors.toList());
+            if (isString) {
+                List<String> availableStatus = Stream.of(TaskStatusEnum.class.getEnumConstants())
+                    .map(Enum::name)
+                    .collect(Collectors.toList());
 
-            if (!availableStatus.contains(taskStatus)) {
-                validationMessages.add("INVALID_STATUS");
+                if (!availableStatus.contains(taskStatus)) {
+                    validationMessages.add("INVALID_STATUS");
+                }
             }
         }
 
