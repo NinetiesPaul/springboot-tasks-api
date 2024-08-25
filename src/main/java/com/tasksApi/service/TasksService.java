@@ -31,7 +31,7 @@ public class TasksService {
 
     public Tasks create(Tasks task, Users createdBy)
     {
-        task.setStatus(TaskStatusEnum.open);
+        task.setStatus(TaskStatusEnum.open.toString());
         task.setCreatedBy(createdBy);
 
         tasksRepository.save(task);
@@ -105,7 +105,7 @@ public class TasksService {
     public Tasks close(Tasks task, Users closedBy)
     {
         String oldStatus = task.getStatus().toString();
-        task.setStatus(TaskStatusEnum.closed);
+        task.setStatus(TaskStatusEnum.closed.toString());
 
         Date closedOn = new Date(System.currentTimeMillis());
         task.setClosedOn(closedOn);

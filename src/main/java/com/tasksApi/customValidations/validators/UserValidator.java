@@ -1,4 +1,4 @@
-package com.tasksApi.customValidations;
+package com.tasksApi.customValidations.validators;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -8,7 +8,7 @@ import com.tasksApi.requests.UsersRequest;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserRegistrationValidator {
+public class UserValidator {
 
 	ArrayList<String> validationMessages = new ArrayList<>();
 

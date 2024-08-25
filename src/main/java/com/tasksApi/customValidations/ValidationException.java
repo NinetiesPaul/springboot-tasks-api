@@ -2,11 +2,11 @@ package com.tasksApi.customValidations;
 
 import java.util.ArrayList;
 
-public class RegisterRequestException extends Exception{
+public class ValidationException extends Exception{
 
 	ArrayList<String> validationMessages = new ArrayList<>();
 
-    public RegisterRequestException(ArrayList<String> messages)
+    public ValidationException(ArrayList<String> messages)
 	{
 		this.validationMessages = messages;
 	}
