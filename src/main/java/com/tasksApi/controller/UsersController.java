@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tasksApi.config.JwtTokenUtil;
-import com.tasksApi.customValidations.RegisterRequestException;
-import com.tasksApi.customValidations.UserRegistrationValidator;
+import com.tasksApi.customValidations.ValidationException;
+import com.tasksApi.customValidations.validators.UserValidator;
 import com.tasksApi.requests.AuthenticationRequest;
 import com.tasksApi.requests.UsersRequest;
 import com.tasksApi.responses.JwtResponse;
@@ -57,13 +57,13 @@ public class UsersController {
 	}
 
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public ResponseEntity<?> saveUser(@Valid @RequestBody UsersRequest user) throws Exception, RegisterRequestException, SQLIntegrityConstraintViolationException {
+	public ResponseEntity<?> saveUser(@Valid @RequestBody UsersRequest user) throws Exception, ValidationException, SQLIntegrityConstraintViolationException {
 
-		UserRegistrationValidator registerRequestValidator = new UserRegistrationValidator();
+		UserValidator registerRequestValidator = new UserValidator();
 		ArrayList<String> validationMessages = registerRequestValidator.validate(user);
 
 		if (validationMessages.size() > 0) {
-			throw new RegisterRequestException(validationMessages);
+			throw new ValidationException(validationMessages);
 		}
 
 		return ResponseEntity.ok(usersService.save(user));
@@ -102,8 +102,8 @@ public class UsersController {
     }
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	@ExceptionHandler(RegisterRequestException.class)
-    public Map<String, Object> handleValidationException(RegisterRequestException exception)
+	@ExceptionHandler(ValidationException.class)
+    public Map<String, Object> handleValidationException(ValidationException exception)
 	{
 		Map<String, Object> response = new HashMap<>();
 
