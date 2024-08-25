@@ -5,13 +5,11 @@ import java.util.Date;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tasksApi.enums.TaskStatusEnum;
-import com.tasksApi.enums.TaskTypeEnum;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+//import javax.persistence.EnumType;
+//import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,8 +17,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Table(name = "task")
 @Entity
@@ -29,22 +25,21 @@ public class Tasks {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
 
-    @NotBlank(message = "Title is mandatory")
     @Column(unique = false, length = 200, nullable = false)
 	private String title;
 
-    @NotBlank(message = "Description is mandatory")
     @Column(unique = false, length = 200, nullable = true)
 	private String description;
 
-    @NotNull(message = "Type is mandatory")
     @Column(nullable = false, length = 20)
-    @Enumerated(EnumType.STRING)
-	private TaskTypeEnum type;
+    /*@Enumerated(EnumType.STRING)
+	private TaskTypeEnum type;*/
+	private String type;
 
     @Column(nullable = false, length = 20)
-    @Enumerated(EnumType.STRING)
-	private TaskStatusEnum status;
+    /*@Enumerated(EnumType.STRING)
+	private TaskStatusEnum status;*/
+	private String status;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "created_by", referencedColumnName = "id")
@@ -69,7 +64,7 @@ public class Tasks {
 	{
 	}
 
-    public Tasks(Integer id, String title, String description, TaskTypeEnum type, TaskStatusEnum status, Users createdBy, Date createdOn, Users closedBy, Date closedOn)
+    public Tasks(Integer id, String title, String description, String type, String status, Users createdBy, Date createdOn, Users closedBy, Date closedOn)
 	{
 	}
 
@@ -97,22 +92,22 @@ public class Tasks {
         this.description = description;
     }
 
-    public TaskTypeEnum getType()
+    public String getType()
     {
         return type;
     }
 
-    public void setType(TaskTypeEnum type)
+    public void setType(String type)
     {
         this.type = type;
     }
 
-    public TaskStatusEnum getStatus()
+    public String getStatus()
     {
         return status;
     }
 
-    public void setStatus(TaskStatusEnum status)
+    public void setStatus(String status)
     {
         this.status = status;
     }
