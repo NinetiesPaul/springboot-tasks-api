@@ -213,10 +213,8 @@ public class TasksController {
     public Map<String, Object> handleValidationException(ValidationException exception)
 	{
 		Map<String, Object> response = new HashMap<>();
-        
 		response.put("message", exception.getValidationMessages());
 		response.put("success", false);
-
         return response;
     }
 

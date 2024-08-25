@@ -44,9 +44,8 @@ public class UsersController {
 	private UsersService usersService;
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ResponseEntity<?> generateAuthenticationToken(@Valid @RequestBody AuthenticationRequest authenticationRequest)
-			throws Exception {
-
+	public ResponseEntity<?> generateAuthenticationToken(@Valid @RequestBody AuthenticationRequest authenticationRequest) throws Exception
+	{
 		authenticate(authenticationRequest.getUserName(), authenticationRequest.getPassword());
 
 		final UserDetails userDetails = usersService.loadUserByUsername(authenticationRequest.getUserName());
@@ -57,8 +56,8 @@ public class UsersController {
 	}
 
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public ResponseEntity<?> saveUser(@Valid @RequestBody UsersRequest user) throws Exception, ValidationException, SQLIntegrityConstraintViolationException {
-
+	public ResponseEntity<?> saveUser(@Valid @RequestBody UsersRequest user) throws Exception, ValidationException, SQLIntegrityConstraintViolationException
+	{
 		UserValidator registerRequestValidator = new UserValidator();
 		ArrayList<String> validationMessages = registerRequestValidator.validate(user);
 
@@ -69,7 +68,8 @@ public class UsersController {
 		return ResponseEntity.ok(usersService.save(user));
 	}
 
-	private void authenticate(String username, String password) throws Exception {
+	private void authenticate(String username, String password) throws Exception
+	{
 		try {
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 		} catch (DisabledException e) {
@@ -89,7 +89,8 @@ public class UsersController {
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
-    public Map<String, Object> handleValidationExceptions(SQLIntegrityConstraintViolationException ex) {
+    public Map<String, Object> handleValidationExceptions(SQLIntegrityConstraintViolationException ex)
+	{
 		Map<String, Object> response = new HashMap<>();
 
 		ArrayList<String> message = new ArrayList<>();
@@ -97,7 +98,6 @@ public class UsersController {
         
 		response.put("message", message);
 		response.put("success", false);
-
         return response;
     }
 
@@ -105,13 +105,9 @@ public class UsersController {
 	@ExceptionHandler(ValidationException.class)
     public Map<String, Object> handleValidationException(ValidationException exception)
 	{
-		Map<String, Object> response = new HashMap<>();
-
-		//ArrayList<String> validationMessages = registerRequestException.getValidationMessages();
-        
+		Map<String, Object> response = new HashMap<>();        
 		response.put("message", exception.getValidationMessages());
 		response.put("success", false);
-
         return response;
     }
 }
