@@ -28,8 +28,10 @@ import com.tasksApi.customValidations.ValidationException;
 import com.tasksApi.customValidations.validators.TaskValidator;
 import com.tasksApi.enums.TaskStatusEnum;
 import com.tasksApi.model.Task;
+import com.tasksApi.model.TaskAssignees;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
+import com.tasksApi.requests.TaskAssign;
 import com.tasksApi.service.TasksService;
 import com.tasksApi.service.UsersService;
 
@@ -154,6 +156,39 @@ public class TasksController {
 
 		Tasks taskUpdated = tasksService.update(optionalTask.get(), task, changedBy);
 		return new ResponseEntity<>(handleSuccess(taskUpdated), HttpStatus.OK);
+	}
+
+	@PostMapping(path = "/assign/{id}")
+	public ResponseEntity<Map<String, Object>> assign(HttpServletRequest request, @RequestBody TaskAssign taskAssignRequest, @PathVariable("id") Integer id) throws Exception
+	{
+		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
+		if (!optionalTask.isPresent()) {
+			return new ResponseEntity<>(handleResponseWithMessage("TASK_NOT_FOUND", false), HttpStatus.NOT_FOUND);
+		}
+
+		String jwtToken = request.getHeader("Authorization").substring(7);
+		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
+		Users assignedBy = usersService.findByName(username);
+
+		Optional<Users> optionalAssignedTo = usersService.findById(taskAssignRequest.getAssignedTo());
+		if (!optionalAssignedTo.isPresent()) {
+			return new ResponseEntity<>(handleResponseWithMessage("USER_NOT_FOUND", false), HttpStatus.NOT_FOUND);
+		}
+
+		tasksService.assign(optionalTask.get(), optionalAssignedTo.get(), assignedBy);
+		return new ResponseEntity<>(handleSuccess(null), HttpStatus.OK);
+	}
+
+	@DeleteMapping(path = "/assign/{id}")
+	public ResponseEntity<Map<String, Object>> unassign(HttpServletRequest request, @PathVariable("id") Integer id) throws Exception
+	{
+		Optional<TaskAssignees> taskAssignment = tasksService.findAssignment(id);
+		if (!taskAssignment.isPresent()) {
+			return new ResponseEntity<>(handleResponseWithMessage("ASSIGNMENT_NOT_FOUND", false), HttpStatus.NOT_FOUND);
+		}
+
+		tasksService.unassign(taskAssignment.get());
+		return new ResponseEntity<>(handleSuccess(null), HttpStatus.OK);
 	}
 
 	@PutMapping(path = "/close/{id}")
