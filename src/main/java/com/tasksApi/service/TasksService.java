@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import com.tasksApi.enums.TaskStatusEnum;
 import com.tasksApi.model.Task;
+import com.tasksApi.model.TaskAssignees;
 import com.tasksApi.model.TaskHistory;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
+import com.tasksApi.repositories.TaskAssigneeRepository;
 import com.tasksApi.repositories.TaskHistoryRepository;
 import com.tasksApi.repositories.TaskRepository;
 import com.tasksApi.repositories.TasksRepository;
@@ -28,6 +30,9 @@ public class TasksService {
 
     @Autowired
     private TaskHistoryRepository taskHistoryRepository;
+
+    @Autowired
+    private TaskAssigneeRepository taskAssigneeRepository;
 
     public Tasks create(Tasks task, Users createdBy)
     {
@@ -123,6 +128,28 @@ public class TasksService {
 
         taskHistoryRepository.save(taskHistory);
         return task;
+	}
+
+    public void assign(Tasks task, Users assignedTo, Users assignedBy)
+    {
+        Date assignedOn = new Date(System.currentTimeMillis());
+
+        TaskAssignees taskAssignee = new TaskAssignees();
+        taskAssignee.setTask(task);
+        taskAssignee.setAssignedTo(assignedTo);
+        taskAssignee.setAssignedBy(assignedBy);
+
+        taskAssigneeRepository.save(taskAssignee);
+	}
+
+    public void unassign(TaskAssignees taskAssignees)
+    {
+        taskAssigneeRepository.delete(taskAssignees);
+    }
+
+    public Optional<TaskAssignees> findAssignment(Integer id)
+    {
+        return taskAssigneeRepository.findById(id);
 	}
 
     public void delete(Tasks task)
