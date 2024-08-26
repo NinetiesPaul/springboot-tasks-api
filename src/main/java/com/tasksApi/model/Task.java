@@ -71,6 +71,10 @@ public class Task {
     @JsonProperty("history")
     private Set<TaskHistory> history;
 
+    @OneToMany(mappedBy="task")
+    @JsonProperty("assignees")
+    private Set<TaskAssignees> assignees;
+
     public Task()
 	{
 	}

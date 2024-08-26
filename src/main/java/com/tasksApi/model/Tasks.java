@@ -1,6 +1,7 @@
 package com.tasksApi.model;
 
 import java.util.Date;
+import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -16,6 +17,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Table(name = "task")
@@ -59,6 +61,10 @@ public class Tasks {
     @Column(name = "closed_on")
     @JsonProperty("closed_on")
 	private Date closedOn;
+
+    @OneToMany(mappedBy="task")
+    @JsonProperty("assignees")
+    private Set<TaskAssignees> assignees;
 
     public Tasks()
 	{
