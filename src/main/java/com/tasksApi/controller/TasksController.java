@@ -92,7 +92,6 @@ public class TasksController {
 		result.put("tasks", allTasks);
 		result.put("total", IterableUtils.size(allTasks));
 
-
 		return new ResponseEntity<>(handleSuccess(result), HttpStatus.OK);
 	}
 	
