@@ -12,8 +12,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
-@Table(name = "task_assignees")
+@Table(name = "task_assignees", uniqueConstraints = { @UniqueConstraint(columnNames = { "task", "assigned_to" }) })
 @Entity
 public class TaskAssignees {
     @Id
