@@ -132,19 +132,37 @@ public class TasksService {
 
     public void assign(Tasks task, Users assignedTo, Users assignedBy)
     {
-        Date assignedOn = new Date(System.currentTimeMillis());
-
         TaskAssignees taskAssignee = new TaskAssignees();
         taskAssignee.setTask(task);
         taskAssignee.setAssignedTo(assignedTo);
         taskAssignee.setAssignedBy(assignedBy);
 
         taskAssigneeRepository.save(taskAssignee);
+
+        TaskHistory taskHistory = new TaskHistory();
+        taskHistory.setField("added_assignee");
+        taskHistory.setChangedFrom("");
+        taskHistory.setChangedTo(assignedTo.getName());
+        taskHistory.setChangedBy(assignedBy);
+        taskHistory.setChangedOn(new Date(System.currentTimeMillis()));
+        taskHistory.setTask(task);
+
+        taskHistoryRepository.save(taskHistory);
 	}
 
-    public void unassign(TaskAssignees taskAssignees)
+    public void unassign(TaskAssignees taskAssignees, Users removedBy)
     {
         taskAssigneeRepository.delete(taskAssignees);
+
+        TaskHistory taskHistory = new TaskHistory();
+        taskHistory.setField("removed_assignee");
+        taskHistory.setChangedFrom("");
+        taskHistory.setChangedTo(taskAssignees.getAssignedTo().getName());
+        taskHistory.setChangedOn(new Date(System.currentTimeMillis()));
+        taskHistory.setChangedBy(removedBy);
+        taskHistory.setTask(taskAssignees.getTask());
+
+        taskHistoryRepository.save(taskHistory);
     }
 
     public Optional<TaskAssignees> findAssignment(Integer id)
