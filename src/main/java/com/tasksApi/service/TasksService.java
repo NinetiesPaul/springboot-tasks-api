@@ -181,7 +181,7 @@ public class TasksService {
 	}
 
     @SuppressWarnings("unchecked")
-    public Iterable<Tasks> findAllTasks(Example tasks)
+    public Iterable<Tasks> findAllTasks(@SuppressWarnings("rawtypes") Example tasks)
     {
         return tasksRepository.findAll(tasks);
 	}
