@@ -28,8 +28,10 @@ import com.tasksApi.customValidations.ValidationException;
 import com.tasksApi.customValidations.validators.TaskValidator;
 import com.tasksApi.enums.TaskStatusEnum;
 import com.tasksApi.model.Task;
+import com.tasksApi.model.TaskAssignees;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
+import com.tasksApi.requests.TaskAssign;
 import com.tasksApi.service.TasksService;
 import com.tasksApi.service.UsersService;
 
@@ -90,7 +92,6 @@ public class TasksController {
 		result.put("tasks", allTasks);
 		result.put("total", IterableUtils.size(allTasks));
 
-
 		return new ResponseEntity<>(handleSuccess(result), HttpStatus.OK);
 	}
 	
@@ -116,9 +117,7 @@ public class TasksController {
 			throw new ValidationException(validationMessages);
 		}
 
-		String jwtToken = request.getHeader("Authorization").substring(7);
-		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
-		Users user = usersService.findByName(username);
+		Users user = this.retrieveUserFromToken(request);
 
 		Tasks taskCreated = tasksService.create(task, user);
 		return new ResponseEntity<>(handleSuccess(taskCreated), HttpStatus.OK);
@@ -148,12 +147,48 @@ public class TasksController {
 			return new ResponseEntity<>(handleResponseWithMessage("TASK_CLOSED", false), HttpStatus.BAD_REQUEST);
 		}
 		
-		String jwtToken = request.getHeader("Authorization").substring(7);
-		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
-		Users changedBy = usersService.findByName(username);
+		Users changedBy = this.retrieveUserFromToken(request);
 
 		Tasks taskUpdated = tasksService.update(optionalTask.get(), task, changedBy);
 		return new ResponseEntity<>(handleSuccess(taskUpdated), HttpStatus.OK);
+	}
+
+	@PostMapping(path = "/assign/{id}")
+	public ResponseEntity<Map<String, Object>> assign(HttpServletRequest request, @RequestBody TaskAssign taskAssignRequest, @PathVariable("id") Integer id) throws Exception
+	{
+		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
+		if (!optionalTask.isPresent()) {
+			return new ResponseEntity<>(handleResponseWithMessage("TASK_NOT_FOUND", false), HttpStatus.NOT_FOUND);
+		}
+
+		Optional<Users> optionalAssignedTo = usersService.findById(taskAssignRequest.getAssignedTo());
+		if (!optionalAssignedTo.isPresent()) {
+			return new ResponseEntity<>(handleResponseWithMessage("USER_NOT_FOUND", false), HttpStatus.NOT_FOUND);
+		}
+
+		Users assignedBy = this.retrieveUserFromToken(request);
+
+		try {
+			tasksService.assign(optionalTask.get(), optionalAssignedTo.get(), assignedBy);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(handleResponseWithMessage("USER_ALREADY_ASSIGNED", false), HttpStatus.ACCEPTED);
+		}
+
+		return new ResponseEntity<>(handleSuccess(null), HttpStatus.OK);
+	}
+
+	@DeleteMapping(path = "/unassign/{id}")
+	public ResponseEntity<Map<String, Object>> unassign(HttpServletRequest request, @PathVariable("id") Integer id) throws Exception
+	{
+		Optional<TaskAssignees> taskAssignment = tasksService.findAssignment(id);
+		if (!taskAssignment.isPresent()) {
+			return new ResponseEntity<>(handleResponseWithMessage("ASSIGNMENT_NOT_FOUND", false), HttpStatus.NOT_FOUND);
+		}
+
+		Users removedBy = this.retrieveUserFromToken(request);
+
+		tasksService.unassign(taskAssignment.get(), removedBy);
+		return new ResponseEntity<>(handleSuccess(null), HttpStatus.OK);
 	}
 
 	@PutMapping(path = "/close/{id}")
@@ -169,9 +204,7 @@ public class TasksController {
 			return new ResponseEntity<>(handleResponseWithMessage("TASK_ALREADY_CLOSED", false), HttpStatus.BAD_REQUEST);
 		}
 
-		String jwtToken = request.getHeader("Authorization").substring(7);
-		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
-		Users user = usersService.findByName(username);
+		Users user = this.retrieveUserFromToken(request);
 
 		Tasks taskClosed = tasksService.close(optionalTask.get(), user);
 		return new ResponseEntity<>(handleSuccess(taskClosed), HttpStatus.OK);
@@ -196,6 +229,13 @@ public class TasksController {
 		response.put("data", data);
         return response;
     }
+
+	public Users retrieveUserFromToken(HttpServletRequest request)
+	{
+		String jwtToken = request.getHeader("Authorization").substring(7);
+		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
+		return usersService.findByName(username);
+	}
 
     public Map<String, Object> handleResponseWithMessage(String message, Boolean success)
 	{

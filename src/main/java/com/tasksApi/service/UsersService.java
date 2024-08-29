@@ -52,4 +52,9 @@ public class UsersService implements UserDetailsService {
 		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
 		return usersRepository.save(newUser);
 	}
+
+	public Iterable<Users> findAll()
+    {
+        return usersRepository.findAll();
+	}
 }

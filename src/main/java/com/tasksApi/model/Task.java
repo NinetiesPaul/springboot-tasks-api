@@ -20,6 +20,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -67,9 +68,14 @@ public class Task {
     @JsonProperty("closed_on")
 	private Date closedOn;
 
+    @OrderBy("changed_on DESC")
     @OneToMany(mappedBy="task")
     @JsonProperty("history")
     private Set<TaskHistory> history;
+
+    @OneToMany(mappedBy="task")
+    @JsonProperty("assignees")
+    private Set<TaskAssignees> assignees;
 
     public Task()
 	{

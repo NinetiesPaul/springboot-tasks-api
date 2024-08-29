@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import com.tasksApi.enums.TaskStatusEnum;
 import com.tasksApi.model.Task;
+import com.tasksApi.model.TaskAssignees;
 import com.tasksApi.model.TaskHistory;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
+import com.tasksApi.repositories.TaskAssigneeRepository;
 import com.tasksApi.repositories.TaskHistoryRepository;
 import com.tasksApi.repositories.TaskRepository;
 import com.tasksApi.repositories.TasksRepository;
@@ -28,6 +30,9 @@ public class TasksService {
 
     @Autowired
     private TaskHistoryRepository taskHistoryRepository;
+
+    @Autowired
+    private TaskAssigneeRepository taskAssigneeRepository;
 
     public Tasks create(Tasks task, Users createdBy)
     {
@@ -125,6 +130,46 @@ public class TasksService {
         return task;
 	}
 
+    public void assign(Tasks task, Users assignedTo, Users assignedBy)
+    {
+        TaskAssignees taskAssignee = new TaskAssignees();
+        taskAssignee.setTask(task);
+        taskAssignee.setAssignedTo(assignedTo);
+        taskAssignee.setAssignedBy(assignedBy);
+
+        taskAssigneeRepository.save(taskAssignee);
+
+        TaskHistory taskHistory = new TaskHistory();
+        taskHistory.setField("added_assignee");
+        taskHistory.setChangedFrom("");
+        taskHistory.setChangedTo(assignedTo.getName());
+        taskHistory.setChangedBy(assignedBy);
+        taskHistory.setChangedOn(new Date(System.currentTimeMillis()));
+        taskHistory.setTask(task);
+
+        taskHistoryRepository.save(taskHistory);
+	}
+
+    public void unassign(TaskAssignees taskAssignees, Users removedBy)
+    {
+        taskAssigneeRepository.delete(taskAssignees);
+
+        TaskHistory taskHistory = new TaskHistory();
+        taskHistory.setField("removed_assignee");
+        taskHistory.setChangedFrom("");
+        taskHistory.setChangedTo(taskAssignees.getAssignedTo().getName());
+        taskHistory.setChangedOn(new Date(System.currentTimeMillis()));
+        taskHistory.setChangedBy(removedBy);
+        taskHistory.setTask(taskAssignees.getTask());
+
+        taskHistoryRepository.save(taskHistory);
+    }
+
+    public Optional<TaskAssignees> findAssignment(Integer id)
+    {
+        return taskAssigneeRepository.findById(id);
+	}
+
     public void delete(Tasks task)
     {
         tasksRepository.delete(task);
@@ -136,7 +181,7 @@ public class TasksService {
 	}
 
     @SuppressWarnings("unchecked")
-    public Iterable<Tasks> findAllTasks(Example tasks)
+    public Iterable<Tasks> findAllTasks(@SuppressWarnings("rawtypes") Example tasks)
     {
         return tasksRepository.findAll(tasks);
 	}

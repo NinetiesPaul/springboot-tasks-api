@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tasksApi.config.JwtTokenUtil;
 import com.tasksApi.customValidations.ValidationException;
 import com.tasksApi.customValidations.validators.UserValidator;
+import com.tasksApi.model.Users;
 import com.tasksApi.requests.AuthenticationRequest;
 import com.tasksApi.requests.UsersRequest;
 import com.tasksApi.responses.JwtResponse;
@@ -66,6 +68,21 @@ public class UsersController {
 		}
 
 		return ResponseEntity.ok(usersService.save(user));
+	}
+
+	@RequestMapping(value = "/api/users/list", method = RequestMethod.GET)
+	public ResponseEntity<Map<String, Object>> findAll() throws Exception, ValidationException, SQLIntegrityConstraintViolationException
+	{
+		Iterable<Users> allUsers = usersService.findAll();
+
+		Map<String, Object> data = new HashMap<>();
+		data.put("users", allUsers);
+		data.put("total", IterableUtils.size(allUsers));
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("success", true);
+		response.put("data", data);
+        return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	private void authenticate(String username, String password) throws Exception
