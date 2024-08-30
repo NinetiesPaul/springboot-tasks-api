@@ -130,7 +130,7 @@ public class TasksService {
         return task;
 	}
 
-    public void assign(Tasks task, Users assignedTo, Users assignedBy)
+    public TaskAssignees assign(Tasks task, Users assignedTo, Users assignedBy)
     {
         TaskAssignees taskAssignee = new TaskAssignees();
         taskAssignee.setTask(task);
@@ -148,6 +148,8 @@ public class TasksService {
         taskHistory.setTask(task);
 
         taskHistoryRepository.save(taskHistory);
+
+        return taskAssignee;
 	}
 
     public void unassign(TaskAssignees taskAssignees, Users removedBy)

@@ -168,13 +168,14 @@ public class TasksController {
 
 		Users assignedBy = this.retrieveUserFromToken(request);
 
+		TaskAssignees taskAssignee = new TaskAssignees();
 		try {
-			tasksService.assign(optionalTask.get(), optionalAssignedTo.get(), assignedBy);
+			taskAssignee = tasksService.assign(optionalTask.get(), optionalAssignedTo.get(), assignedBy);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(handleResponseWithMessage("USER_ALREADY_ASSIGNED", false), HttpStatus.ACCEPTED);
 		}
 
-		return new ResponseEntity<>(handleSuccess(null), HttpStatus.OK);
+		return new ResponseEntity<>(handleSuccess(taskAssignee), HttpStatus.OK);
 	}
 
 	@DeleteMapping(path = "/unassign/{id}")
