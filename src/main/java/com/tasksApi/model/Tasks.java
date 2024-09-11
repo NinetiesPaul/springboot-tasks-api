@@ -21,7 +21,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Table(name = "task")
-@Entity
+@Entity(name = "task")
 public class Tasks {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -62,6 +62,7 @@ public class Tasks {
     @JsonProperty("closed_on")
 	private Date closedOn;
 
+    //@OneToMany(mappedBy = "task", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @OneToMany(mappedBy="task")
     @JsonProperty("assignees")
     private Set<TaskAssignees> assignees;

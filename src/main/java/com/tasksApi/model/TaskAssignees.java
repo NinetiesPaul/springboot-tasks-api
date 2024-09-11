@@ -15,7 +15,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 @Table(name = "task_assignees", uniqueConstraints = { @UniqueConstraint(columnNames = { "task", "assigned_to" }) })
-@Entity
+@Entity(name = "task_assignees")
 public class TaskAssignees {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
