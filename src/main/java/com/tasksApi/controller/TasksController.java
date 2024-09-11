@@ -56,7 +56,8 @@ public class TasksController {
 	public ResponseEntity<Map<String, Object>> findAll(
 		@RequestParam(required = false) String status,
 		@RequestParam(required = false) String type,
-		@RequestParam(required = false) Integer created_by) throws ValidationException
+		@RequestParam(required = false) Integer created_by,
+		@RequestParam(required = false) Boolean assigned) throws ValidationException
 	{
 		Tasks task = new Tasks();
 		ArrayList<String> validationMessages = new ArrayList<>();
@@ -85,12 +86,27 @@ public class TasksController {
 			throw new ValidationException(validationMessages);
 		}
 
-		Example<Tasks> exampleTasks = Example.of(task);
-		Iterable<Tasks> allTasks = tasksService.findAllTasks(exampleTasks);
-
 		Map<String, Object> result = new HashMap<>();
-		result.put("tasks", allTasks);
-		result.put("total", IterableUtils.size(allTasks));
+		Example<Tasks> exampleTasks = Example.of(task);
+		if (assigned != null) {
+			if (assigned) {
+				Iterable<Tasks> allTasks = tasksService.findTasksWithAssignees(exampleTasks);
+			
+				result.put("tasks", allTasks);
+				result.put("total", IterableUtils.size(allTasks));
+
+			} else {
+				Iterable<Tasks> allTasks = tasksService.findTasksWithoutAssignees(exampleTasks);
+			
+				result.put("tasks", allTasks);
+				result.put("total", IterableUtils.size(allTasks));
+			}
+		} else {
+			Iterable<Tasks> allTasks = tasksService.findAllTasks(exampleTasks);
+
+			result.put("tasks", allTasks);
+			result.put("total", IterableUtils.size(allTasks));
+		}
 
 		return new ResponseEntity<>(handleSuccess(result), HttpStatus.OK);
 	}
