@@ -197,4 +197,14 @@ public class TasksService {
     {
         return taskRepository.findById(id);
 	}
+
+    public Iterable<Tasks> findTasksWithoutAssignees(Example tasks)
+    {
+        return tasksRepository.hasNoAssignees();
+	}
+
+    public Iterable<Tasks> findTasksWithAssignees(Example tasks)
+    {
+        return tasksRepository.hasAssignees();
+	}
 }
