@@ -11,10 +11,12 @@ import org.springframework.stereotype.Service;
 import com.tasksApi.enums.TaskStatusEnum;
 import com.tasksApi.model.Task;
 import com.tasksApi.model.TaskAssignees;
+import com.tasksApi.model.TaskComment;
 import com.tasksApi.model.TaskHistory;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
 import com.tasksApi.repositories.TaskAssigneeRepository;
+import com.tasksApi.repositories.TaskCommentRepository;
 import com.tasksApi.repositories.TaskHistoryRepository;
 import com.tasksApi.repositories.TaskRepository;
 import com.tasksApi.repositories.TasksRepository;
@@ -33,6 +35,9 @@ public class TasksService {
 
     @Autowired
     private TaskAssigneeRepository taskAssigneeRepository;
+
+    @Autowired
+    private TaskCommentRepository taskCommentRepository;
 
     public Tasks create(Tasks task, Users createdBy)
     {
@@ -152,6 +157,18 @@ public class TasksService {
         return taskAssignee;
 	}
 
+    public TaskComment addComment(Tasks task, String text, Users createdBy)
+    {
+        TaskComment taskComment = new TaskComment();
+        taskComment.setTask(task);
+        taskComment.setText(text);
+        taskComment.setCreatedBy(createdBy);
+
+        taskCommentRepository.save(taskComment);
+
+        return taskComment;
+	}
+
     public void unassign(TaskAssignees taskAssignees, Users removedBy)
     {
         taskAssigneeRepository.delete(taskAssignees);
@@ -172,9 +189,19 @@ public class TasksService {
         return taskAssigneeRepository.findById(id);
 	}
 
+    public Optional<TaskComment> findComment(Integer id)
+    {
+        return taskCommentRepository.findById(id);
+	}
+
     public void delete(Tasks task)
     {
         tasksRepository.delete(task);
+	}
+
+    public void deleteComment(TaskComment taskComment)
+    {
+        taskCommentRepository.delete(taskComment);
 	}
 
     public Iterable<Tasks> findAllTasks()
