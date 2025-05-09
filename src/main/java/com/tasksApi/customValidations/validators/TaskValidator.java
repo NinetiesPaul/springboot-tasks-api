@@ -6,6 +6,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tasksApi.model.Tasks;
+import com.tasksApi.requests.TaskAssign;
+import com.tasksApi.requests.TaskComments;
+
 import org.springframework.stereotype.Component;
 
 import com.tasksApi.enums.TaskStatusEnum;
@@ -186,6 +189,43 @@ public class TaskValidator {
                 if (!availableStatus.contains(taskStatus)) {
                     validationMessages.add("INVALID_STATUS");
                 }
+            }
+        }
+
+        return validationMessages;
+    }
+
+    public ArrayList<String> validateAssignment(TaskAssign taskAssign)
+    {
+        if (taskAssign.getAssignedTo() == null) {
+            validationMessages.add("MISSING_ASSIGNED_TO");
+        } else {
+            try {
+                Integer.parseInt(taskAssign.getAssignedTo());
+            } catch (NumberFormatException nfe) {
+                validationMessages.add("ASSIGNED_TO_NOT_INTEGER");
+            }
+        }
+
+        return validationMessages;
+    }
+
+    public ArrayList<String> validateComment(TaskComments taskComment)
+    {
+        if (taskComment.getText() == null) {
+            validationMessages.add("MISSING_TEXT");
+        } else {
+            String comment = taskComment.getText().trim();
+
+            if (comment.equals("")) {
+                validationMessages.add("EMPTY_TEXT");
+            }
+
+            try {
+                Integer.parseInt(comment);
+                validationMessages.add("TEXT_NOT_STRING");
+            } catch (NumberFormatException nfe) {
+                System.out.println("Title is not integer");
             }
         }
 

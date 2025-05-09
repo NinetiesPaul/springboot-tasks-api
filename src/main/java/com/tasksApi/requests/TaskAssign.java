@@ -8,23 +8,23 @@ public class TaskAssign implements Serializable {
     private static final long serialVersionUID = 5926468583005150707L;
 
 	@JsonProperty("assigned_to")
-	private Integer assignedTo;
+	private String assignedTo;
 
 	public TaskAssign()
 	{
 	}
 
-	public TaskAssign(Integer assignedTo)
+	public TaskAssign(String assignedTo)
 	{
 		this.setAssignedTo(assignedTo);
 	}
 
-	public Integer getAssignedTo()
+	public String getAssignedTo()
     {
         return assignedTo;
     }
 
-    public void setAssignedTo(Integer assignedTo)
+    public void setAssignedTo(String assignedTo)
     {
         this.assignedTo = assignedTo;
     }
