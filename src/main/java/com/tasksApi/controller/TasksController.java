@@ -29,8 +29,10 @@ import com.tasksApi.customValidations.validators.TaskValidator;
 import com.tasksApi.enums.TaskStatusEnum;
 import com.tasksApi.model.Task;
 import com.tasksApi.model.TaskAssignees;
+import com.tasksApi.model.TaskComment;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
+import com.tasksApi.requests.TaskComments;
 import com.tasksApi.requests.TaskAssign;
 import com.tasksApi.service.TasksService;
 import com.tasksApi.service.UsersService;
@@ -177,7 +179,14 @@ public class TasksController {
 			return new ResponseEntity<>(handleResponseWithMessage("TASK_NOT_FOUND", false), HttpStatus.NOT_FOUND);
 		}
 
-		Optional<Users> optionalAssignedTo = usersService.findById(taskAssignRequest.getAssignedTo());
+		TaskValidator taskValidator = new TaskValidator();
+		ArrayList<String> validationMessages = taskValidator.validateAssignment(taskAssignRequest);
+
+		if (validationMessages.size() > 0) {
+			throw new ValidationException(validationMessages);
+		}
+
+		Optional<Users> optionalAssignedTo = usersService.findById(Integer.parseInt(taskAssignRequest.getAssignedTo()));
 		if (!optionalAssignedTo.isPresent()) {
 			return new ResponseEntity<>(handleResponseWithMessage("USER_NOT_FOUND", false), HttpStatus.NOT_FOUND);
 		}
@@ -207,6 +216,43 @@ public class TasksController {
 		tasksService.unassign(taskAssignment.get(), removedBy);
 		return new ResponseEntity<>(handleSuccess(null), HttpStatus.OK);
 	}
+
+
+	@PostMapping(path = "/comment/{id}")
+	public ResponseEntity<Map<String, Object>> addComment(HttpServletRequest request, @RequestBody TaskComments taskCommentRequest, @PathVariable("id") Integer id) throws Exception
+	{
+		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
+		if (!optionalTask.isPresent()) {
+			return new ResponseEntity<>(handleResponseWithMessage("TASK_NOT_FOUND", false), HttpStatus.NOT_FOUND);
+		}
+
+		TaskValidator taskValidator = new TaskValidator();
+		ArrayList<String> validationMessages = taskValidator.validateComment(taskCommentRequest);
+
+		if (validationMessages.size() > 0) {
+			throw new ValidationException(validationMessages);
+		}
+
+		Users createdBy = this.retrieveUserFromToken(request);
+
+		TaskComment taskComment = new TaskComment();
+		taskComment = tasksService.addComment(optionalTask.get(), taskCommentRequest.getText(), createdBy);
+
+		return new ResponseEntity<>(handleSuccess(taskComment), HttpStatus.OK);
+	}
+
+	@DeleteMapping(path = "/comment/{id}")
+	public ResponseEntity<Map<String, Object>> deleteComment(HttpServletRequest request, @PathVariable("id") Integer id) throws Exception
+	{
+		Optional<TaskComment> taskComment = tasksService.findComment(id);
+		if (!taskComment.isPresent()) {
+			return new ResponseEntity<>(handleResponseWithMessage("COMMENT_NOT_FOUND", false), HttpStatus.NOT_FOUND);
+		}
+
+		tasksService.deleteComment(taskComment.get());
+		return new ResponseEntity<>(handleSuccess(null), HttpStatus.OK);
+	}
+
 
 	@PutMapping(path = "/close/{id}")
 	public ResponseEntity<Map<String, Object>> close(HttpServletRequest request, @PathVariable("id") Integer id) throws Exception
