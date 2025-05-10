@@ -1,6 +1,5 @@
 package com.tasksApi.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 
@@ -10,14 +9,8 @@ import org.springframework.stereotype.Service;
 
 import com.tasksApi.enums.TaskStatusEnum;
 import com.tasksApi.model.Task;
-import com.tasksApi.model.TaskAssignees;
-import com.tasksApi.model.TaskComment;
-import com.tasksApi.model.TaskHistory;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
-import com.tasksApi.repositories.TaskAssigneeRepository;
-import com.tasksApi.repositories.TaskCommentRepository;
-import com.tasksApi.repositories.TaskHistoryRepository;
 import com.tasksApi.repositories.TaskRepository;
 import com.tasksApi.repositories.TasksRepository;
 
@@ -31,13 +24,7 @@ public class TasksService {
     private TaskRepository taskRepository;
 
     @Autowired
-    private TaskHistoryRepository taskHistoryRepository;
-
-    @Autowired
-    private TaskAssigneeRepository taskAssigneeRepository;
-
-    @Autowired
-    private TaskCommentRepository taskCommentRepository;
+    private TaskHistoryService taskHistoryService;
 
     public Tasks create(Tasks task, Users createdBy)
     {
@@ -50,65 +37,27 @@ public class TasksService {
 
     public Tasks update(Tasks task, Tasks taskRequest, Users changedBy)
     {
-        ArrayList<TaskHistory> taskHistories = new ArrayList<TaskHistory>();
-
         if (taskRequest.getTitle() != null && !taskRequest.getTitle().equals(task.getTitle())) {
-            TaskHistory taskHistory = new TaskHistory();
-            taskHistory.setField("title");
-            taskHistory.setChangedFrom(task.getTitle());
-            taskHistory.setChangedTo(taskRequest.getTitle());
-            taskHistory.setChangedOn(null);
-            taskHistory.setChangedBy(changedBy);
-            taskHistory.setTask(task);
-            taskHistories.add(taskHistory);
-
+            taskHistoryService.addHistory("title", task.getTitle(), taskRequest.getTitle(), changedBy, task);
             task.setTitle(taskRequest.getTitle());
         }
 
         if (taskRequest.getDescription() != null && (!taskRequest.getDescription().equals(task.getDescription()))) {
-            TaskHistory taskHistory = new TaskHistory();
-            taskHistory.setField("description");
-            taskHistory.setChangedFrom(task.getDescription());
-            taskHistory.setChangedTo(taskRequest.getDescription());
-            taskHistory.setChangedOn(null);
-            taskHistory.setChangedBy(changedBy);
-            taskHistory.setTask(task);
-            taskHistories.add(taskHistory);
-
+            taskHistoryService.addHistory("description", task.getDescription(), taskRequest.getDescription(), changedBy, task);
             task.setDescription(taskRequest.getDescription());
         }
 
         if (taskRequest.getType() != null && (!taskRequest.getType().equals(task.getType()))) {
-            TaskHistory taskHistory = new TaskHistory();
-            taskHistory.setField("type");
-            taskHistory.setChangedFrom(task.getType().toString());
-            taskHistory.setChangedTo(taskRequest.getType().toString());
-            taskHistory.setChangedOn(null);
-            taskHistory.setChangedBy(changedBy);
-            taskHistory.setTask(task);
-            taskHistories.add(taskHistory);
-
+            taskHistoryService.addHistory("type", task.getType().toString(), taskRequest.getType().toString(), changedBy, task);
             task.setType(taskRequest.getType());
         }
 
         if (taskRequest.getStatus() != null && (!taskRequest.getStatus().equals(task.getStatus()))) {
-            TaskHistory taskHistory = new TaskHistory();
-            taskHistory.setField("status");
-            taskHistory.setChangedFrom(task.getStatus().toString());
-            taskHistory.setChangedTo(taskRequest.getStatus().toString());
-            taskHistory.setChangedOn(null);
-            taskHistory.setChangedBy(changedBy);
-            taskHistory.setTask(task);
-            taskHistories.add(taskHistory);
-
+            taskHistoryService.addHistory("status", task.getStatus().toString(), taskRequest.getStatus().toString(), changedBy, task);
             task.setStatus(taskRequest.getStatus());
         }
         
         tasksRepository.save(task);
-
-        for (TaskHistory newTaskHistory: taskHistories) {
-            taskHistoryRepository.save(newTaskHistory);
-        }
         return task;
 	}
 
@@ -123,85 +72,13 @@ public class TasksService {
         
         tasksRepository.save(task);
 
-        TaskHistory taskHistory = new TaskHistory();
-        taskHistory.setField("status");
-        taskHistory.setChangedFrom(oldStatus);
-        taskHistory.setChangedTo(TaskStatusEnum.closed.toString());
-        taskHistory.setChangedOn(closedOn);
-        taskHistory.setChangedBy(closedBy);
-        taskHistory.setTask(task);
-
-        taskHistoryRepository.save(taskHistory);
+        taskHistoryService.addHistory("status",oldStatus, TaskStatusEnum.closed.toString(), closedBy, task);
         return task;
-	}
-
-    public TaskAssignees assign(Tasks task, Users assignedTo, Users assignedBy)
-    {
-        TaskAssignees taskAssignee = new TaskAssignees();
-        taskAssignee.setTask(task);
-        taskAssignee.setAssignedTo(assignedTo);
-        taskAssignee.setAssignedBy(assignedBy);
-
-        taskAssigneeRepository.save(taskAssignee);
-
-        TaskHistory taskHistory = new TaskHistory();
-        taskHistory.setField("added_assignee");
-        taskHistory.setChangedFrom("");
-        taskHistory.setChangedTo(assignedTo.getName());
-        taskHistory.setChangedBy(assignedBy);
-        taskHistory.setChangedOn(new Date(System.currentTimeMillis()));
-        taskHistory.setTask(task);
-
-        taskHistoryRepository.save(taskHistory);
-
-        return taskAssignee;
-	}
-
-    public TaskComment addComment(Tasks task, String text, Users createdBy)
-    {
-        TaskComment taskComment = new TaskComment();
-        taskComment.setTask(task);
-        taskComment.setText(text);
-        taskComment.setCreatedBy(createdBy);
-
-        taskCommentRepository.save(taskComment);
-
-        return taskComment;
-	}
-
-    public void unassign(TaskAssignees taskAssignees, Users removedBy)
-    {
-        taskAssigneeRepository.delete(taskAssignees);
-
-        TaskHistory taskHistory = new TaskHistory();
-        taskHistory.setField("removed_assignee");
-        taskHistory.setChangedFrom("");
-        taskHistory.setChangedTo(taskAssignees.getAssignedTo().getName());
-        taskHistory.setChangedOn(new Date(System.currentTimeMillis()));
-        taskHistory.setChangedBy(removedBy);
-        taskHistory.setTask(taskAssignees.getTask());
-
-        taskHistoryRepository.save(taskHistory);
-    }
-
-    public Optional<TaskAssignees> findAssignment(Integer id)
-    {
-        return taskAssigneeRepository.findById(id);
-	}
-
-    public Optional<TaskComment> findComment(Integer id)
-    {
-        return taskCommentRepository.findById(id);
 	}
 
     public void delete(Tasks task)
     {
         tasksRepository.delete(task);
-	}
-
-    public void deleteComment(TaskComment taskComment)
-    {
-        taskCommentRepository.delete(taskComment);
 	}
 
     public Iterable<Tasks> findAllTasks()
