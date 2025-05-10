@@ -4,17 +4,17 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class TaskAssign implements Serializable {
+public class TaskAssignRequest implements Serializable {
     private static final long serialVersionUID = 5926468583005150707L;
 
 	@JsonProperty("assigned_to")
 	private String assignedTo;
 
-	public TaskAssign()
+	public TaskAssignRequest()
 	{
 	}
 
-	public TaskAssign(String assignedTo)
+	public TaskAssignRequest(String assignedTo)
 	{
 		this.setAssignedTo(assignedTo);
 	}
