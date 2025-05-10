@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tasksApi.model.Tasks;
-import com.tasksApi.requests.TaskAssign;
-import com.tasksApi.requests.TaskComments;
+import com.tasksApi.requests.TaskAssignRequest;
+import com.tasksApi.requests.TaskCommentRequest;
 
 import org.springframework.stereotype.Component;
 
@@ -195,7 +195,7 @@ public class TaskValidator {
         return validationMessages;
     }
 
-    public ArrayList<String> validateAssignment(TaskAssign taskAssign)
+    public ArrayList<String> validateAssignment(TaskAssignRequest taskAssign)
     {
         if (taskAssign.getAssignedTo() == null) {
             validationMessages.add("MISSING_ASSIGNED_TO");
@@ -210,7 +210,7 @@ public class TaskValidator {
         return validationMessages;
     }
 
-    public ArrayList<String> validateComment(TaskComments taskComment)
+    public ArrayList<String> validateComment(TaskCommentRequest taskComment)
     {
         if (taskComment.getText() == null) {
             validationMessages.add("MISSING_TEXT");
