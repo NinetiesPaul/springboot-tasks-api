@@ -77,6 +77,10 @@ public class Task {
     @JsonProperty("assignees")
     private Set<TaskAssignees> assignees;
 
+    @OneToMany(mappedBy="task")
+    @JsonProperty("comments")
+    private Set<TaskComment> comments;
+
     public Task()
 	{
 	}
