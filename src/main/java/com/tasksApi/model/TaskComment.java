@@ -26,7 +26,7 @@ public class TaskComment {
     private Integer id;
 
     @Column(unique = false, length = 255, nullable = true)
-    @JsonProperty("text")
+    @JsonProperty("comment_text")
 	private String text;
 
     @JsonIgnore

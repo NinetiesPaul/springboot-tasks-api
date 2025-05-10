@@ -32,8 +32,10 @@ import com.tasksApi.model.TaskAssignees;
 import com.tasksApi.model.TaskComment;
 import com.tasksApi.model.Tasks;
 import com.tasksApi.model.Users;
-import com.tasksApi.requests.TaskComments;
-import com.tasksApi.requests.TaskAssign;
+import com.tasksApi.requests.TaskCommentRequest;
+import com.tasksApi.requests.TaskAssignRequest;
+import com.tasksApi.service.TaskAssigneesService;
+import com.tasksApi.service.TaskCommentService;
 import com.tasksApi.service.TasksService;
 import com.tasksApi.service.UsersService;
 
@@ -50,6 +52,12 @@ public class TasksController {
 	
 	@Autowired
 	private UsersService usersService;
+	
+	@Autowired
+	private TaskAssigneesService taskAssigneesService;
+	
+	@Autowired
+	private TaskCommentService taskCommentService;
 
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
@@ -172,7 +180,7 @@ public class TasksController {
 	}
 
 	@PostMapping(path = "/assign/{id}")
-	public ResponseEntity<Map<String, Object>> assign(HttpServletRequest request, @RequestBody TaskAssign taskAssignRequest, @PathVariable("id") Integer id) throws Exception
+	public ResponseEntity<Map<String, Object>> assign(HttpServletRequest request, @RequestBody TaskAssignRequest taskAssignRequest, @PathVariable("id") Integer id) throws Exception
 	{
 		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
 		if (!optionalTask.isPresent()) {
@@ -195,7 +203,7 @@ public class TasksController {
 
 		TaskAssignees taskAssignee = new TaskAssignees();
 		try {
-			taskAssignee = tasksService.assign(optionalTask.get(), optionalAssignedTo.get(), assignedBy);
+			taskAssignee = taskAssigneesService.assign(optionalTask.get(), optionalAssignedTo.get(), assignedBy);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(handleResponseWithMessage("USER_ALREADY_ASSIGNED", false), HttpStatus.ACCEPTED);
 		}
@@ -206,20 +214,20 @@ public class TasksController {
 	@DeleteMapping(path = "/unassign/{id}")
 	public ResponseEntity<Map<String, Object>> unassign(HttpServletRequest request, @PathVariable("id") Integer id) throws Exception
 	{
-		Optional<TaskAssignees> taskAssignment = tasksService.findAssignment(id);
+		Optional<TaskAssignees> taskAssignment = taskAssigneesService.findAssignment(id);
 		if (!taskAssignment.isPresent()) {
 			return new ResponseEntity<>(handleResponseWithMessage("ASSIGNMENT_NOT_FOUND", false), HttpStatus.NOT_FOUND);
 		}
 
 		Users removedBy = this.retrieveUserFromToken(request);
 
-		tasksService.unassign(taskAssignment.get(), removedBy);
+		taskAssigneesService.unassign(taskAssignment.get(), removedBy);
 		return new ResponseEntity<>(handleSuccess(null), HttpStatus.OK);
 	}
 
 
 	@PostMapping(path = "/comment/{id}")
-	public ResponseEntity<Map<String, Object>> addComment(HttpServletRequest request, @RequestBody TaskComments taskCommentRequest, @PathVariable("id") Integer id) throws Exception
+	public ResponseEntity<Map<String, Object>> addComment(HttpServletRequest request, @RequestBody TaskCommentRequest taskCommentRequest, @PathVariable("id") Integer id) throws Exception
 	{
 		Optional<Tasks> optionalTask = tasksService.findOneTask(id);
 		if (!optionalTask.isPresent()) {
@@ -236,7 +244,7 @@ public class TasksController {
 		Users createdBy = this.retrieveUserFromToken(request);
 
 		TaskComment taskComment = new TaskComment();
-		taskComment = tasksService.addComment(optionalTask.get(), taskCommentRequest.getText(), createdBy);
+		taskComment = taskCommentService.addComment(optionalTask.get(), taskCommentRequest.getText(), createdBy);
 
 		return new ResponseEntity<>(handleSuccess(taskComment), HttpStatus.OK);
 	}
@@ -244,12 +252,12 @@ public class TasksController {
 	@DeleteMapping(path = "/comment/{id}")
 	public ResponseEntity<Map<String, Object>> deleteComment(HttpServletRequest request, @PathVariable("id") Integer id) throws Exception
 	{
-		Optional<TaskComment> taskComment = tasksService.findComment(id);
+		Optional<TaskComment> taskComment = taskCommentService.findComment(id);
 		if (!taskComment.isPresent()) {
 			return new ResponseEntity<>(handleResponseWithMessage("COMMENT_NOT_FOUND", false), HttpStatus.NOT_FOUND);
 		}
 
-		tasksService.deleteComment(taskComment.get());
+		taskCommentService.deleteComment(taskComment.get());
 		return new ResponseEntity<>(handleSuccess(null), HttpStatus.OK);
 	}
 
