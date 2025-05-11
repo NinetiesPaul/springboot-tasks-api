@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,9 +24,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.tasksApi.config.JwtTokenUtil;
 import com.tasksApi.customValidations.ValidationException;
 import com.tasksApi.customValidations.validators.TaskValidator;
+import com.tasksApi.dto.TaskDto;
 import com.tasksApi.enums.TaskStatusEnum;
 import com.tasksApi.model.Task;
 import com.tasksApi.model.TaskAssignees;
@@ -134,6 +139,7 @@ public class TasksController {
 	}
 	
 	@PostMapping(path = "/create")
+	//public MappingJacksonValue
 	public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody Tasks task, HttpServletRequest request) throws Exception
 	{
 		TaskValidator taskCreationValidator = new TaskValidator();
@@ -146,7 +152,20 @@ public class TasksController {
 		Users user = this.retrieveUserFromToken(request);
 
 		Tasks taskCreated = tasksService.create(task, user);
-		return new ResponseEntity<>(handleSuccess(taskCreated), HttpStatus.OK);
+
+		TaskDto taskDto = new TaskDto();
+		taskDto.setId(taskCreated.getId());
+		taskDto.setTitle(taskCreated.getTitle());
+		taskDto.setDescription(taskCreated.getDescription());
+		taskDto.setType(taskCreated.getType().toString());
+		taskDto.setStatus(taskCreated.getStatus().toString());
+		taskDto.setCreatedBy(taskCreated.getCreatedBy());
+		taskDto.setCreatedOn(taskCreated.getCreatedOn());
+		taskDto.setClosedBy(taskCreated.getClosedBy());
+		taskDto.setClosedOn(taskCreated.getClosedOn());
+
+		//MappingJacksonValue filtered = this.filterObject(taskCreated);
+		return new ResponseEntity<>(handleSuccess(taskDto), HttpStatus.OK);
 	}
 	
 	@PutMapping(path = "/update/{id}")
@@ -300,6 +319,24 @@ public class TasksController {
 		response.put("data", data);
         return response;
     }
+
+	public Map<String, Object> handleSuccess(MappingJacksonValue data)
+	{
+		Map<String, Object> response = new HashMap<>();
+		response.put("success", true);
+		response.put("data", data);
+        return response;
+    }
+
+	public MappingJacksonValue filterObject(Tasks task)
+	{
+		SimpleBeanPropertyFilter filter;
+		filter = SimpleBeanPropertyFilter.filterOutAllExcept("closed_by");
+		FilterProvider filters = new SimpleFilterProvider().addFilter("userFilter", filter);
+		MappingJacksonValue mapping = new MappingJacksonValue(task);
+		mapping.setFilters(filters);
+		return mapping;
+	}
 
 	public Users retrieveUserFromToken(HttpServletRequest request)
 	{
