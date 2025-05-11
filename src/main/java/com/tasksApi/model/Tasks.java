@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+//import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Column;
@@ -22,6 +23,7 @@ import javax.persistence.Table;
 
 @Table(name = "task")
 @Entity(name = "task")
+//@JsonFilter("userFilter")
 public class Tasks {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
