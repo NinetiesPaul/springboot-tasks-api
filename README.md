@@ -1,25 +1,23 @@
-## Tasks API in Spring Boot
-A simple API in Spring Boot. It has some basic functions, like:
+## Tasks API in Java
+This is a RESTful API application for managing tasks and issues. The technology used here is Java, and the main purpose of this project is to showcase my understanding of key features under this technology, such as:
 
+- Requests performing CRUD operations
 - User registration and authentication using JWT
-- Perform CRUD operations of Tasks
 - Some basics business rules enforced
-
-My main goal is to showcase some concepts, such as:
-
 - Migrations and model relationship
 - Authentication configuration
 - Routes definitions
 - SOLID and KISS principles on a MVC architecture
+- Unit/Integration testing
 
-The main tech behind it is Spring Boot and also some others Java libraries. For storaging, i'm using MySQL relational database
+The main tech behind it is Java with the Spring Boot framework, to showcase it's cleanliness and simplicity while maintaning a robust architecture. For storaging i'm using relational databases managed with JPA/Hibernate
 
 ## Environment setup
 To run this application you must have installed on your environment:
 
-* `Java` - For the main application 
-* `Maven` - For library and packages management
-* `MySQL` - For storaging and accessing data
+* `Java` (19.0.2) - For the main application 
+* `Maven` (3.9.4) - For library and packages management
+* `MySQL` (5.7 or greater) or `PostgreSQL` (15 or greater) - For storaging and accessing data
 
 ## Installation and Configuration
 Once you set up all necessary software and tools, run
