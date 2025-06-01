@@ -2,6 +2,7 @@ package com.tasksApi.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -101,21 +102,35 @@ public class TasksController {
 			throw new ValidationException(validationMessages);
 		}
 
+		Iterable<Tasks> allFilteredTasks = new ArrayList<>();
 		Map<String, Object> result = new HashMap<>();
 		Example<Tasks> exampleTasks = Example.of(task);
 		if (assigned != null) {
 			if (assigned) {
-				Iterable<Tasks> allTasks = tasksService.findTasksWithAssignees(exampleTasks);
-			
-				result.put("tasks", allTasks);
-				result.put("total", IterableUtils.size(allTasks));
-
+				allFilteredTasks = tasksService.findTasksWithAssignees(exampleTasks);
 			} else {
-				Iterable<Tasks> allTasks = tasksService.findTasksWithoutAssignees(exampleTasks);
-			
-				result.put("tasks", allTasks);
-				result.put("total", IterableUtils.size(allTasks));
+				allFilteredTasks = tasksService.findTasksWithoutAssignees(exampleTasks);
 			}
+
+			/*
+			 * #TODO #WIP
+			 * Both methods findTasksWithAssignees and findTasksWithoutAssignees are retrieving a nested list; a list with the list results inside,
+			 * which most likely will lead to problems when looping on the frontend.
+			 * 
+			 * Temporarily i'm unpacking the resulted list, or "flattening". Obviously this will be a bottleneck on a situation where hundreds of thousands
+			 * of entries are retrieved, so this should be properly addressed in the future.
+			 */
+			List<Tasks> flatTasks = new ArrayList<>();
+			for (Object row : allFilteredTasks) {
+				if (row instanceof Object[]) {
+					flatTasks.add((Tasks) ((Object[]) row)[0]);
+				} else if (row instanceof Tasks) {
+					flatTasks.add((Tasks) row);
+				}
+			}
+
+			result.put("tasks", flatTasks);
+			result.put("total", IterableUtils.size(flatTasks));
 		} else {
 			Iterable<Tasks> allTasks = tasksService.findAllTasks(exampleTasks);
 
